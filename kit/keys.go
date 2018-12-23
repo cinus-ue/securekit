@@ -1,0 +1,67 @@
+package kit
+
+import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"os"
+)
+
+// Generate new RSA keypair
+func GenerateRSAKey(bits int) (*rsa.PrivateKey, error) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
+	CheckErr(err)
+	return privateKey, nil
+}
+
+// Stringify private key
+func Stringify(privateKey *rsa.PrivateKey) (string, string, error) {
+	privateKeyDer := x509.MarshalPKCS1PrivateKey(privateKey)
+	privateKeyBlock := pem.Block{
+		Type:    "RSA PRIVATE KEY",
+		Headers: nil,
+		Bytes:   privateKeyDer,
+	}
+	publicKeyDer, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
+	CheckErr(err)
+	publicKeyBlock := pem.Block{
+		Type:    "RSA PUBLIC KEY",
+		Headers: nil,
+		Bytes:   publicKeyDer,
+	}
+	return string(pem.EncodeToMemory(&privateKeyBlock)), string(pem.EncodeToMemory(&publicKeyBlock)), nil
+}
+
+// save key
+func SaveRSAKey(privateKey *rsa.PrivateKey) error {
+	privateKeyDer := x509.MarshalPKCS1PrivateKey(privateKey)
+	privateKeyBlock := &pem.Block{
+		Type:    "RSA PRIVATE KEY",
+		Headers: nil,
+		Bytes:   privateKeyDer,
+	}
+	file, err := os.Create("private.pem")
+	CheckErr(err)
+	err = pem.Encode(file, privateKeyBlock)
+	CheckErr(err)
+	publicKeyDer, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
+	CheckErr(err)
+	publicKeyBlock := &pem.Block{
+		Type:    "RSA PUBLIC KEY",
+		Headers: nil,
+		Bytes:   publicKeyDer,
+	}
+	file, err = os.Create("public.pem")
+	CheckErr(err)
+	err = pem.Encode(file, publicKeyBlock)
+	CheckErr(err)
+	return nil
+}
+
+// Decode Key
+func DecodePrivateKey(key []byte) (*rsa.PrivateKey, error) {
+	block, _ := pem.Decode([]byte(key))
+	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	return privateKey, err
+}
