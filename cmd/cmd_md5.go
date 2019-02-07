@@ -28,7 +28,7 @@ func md5Action(c *cli.Context) (err error) {
 	var file = c.Bool("file")
 	switch {
 	case file:
-		source := kit.GetInput("Please enter the path of the file:")
+		source := kit.GetInput("Please enter the path of the source file:")
 		if !kit.ValidateFile(source) {
 			fmt.Print("File not found\n")
 			return nil

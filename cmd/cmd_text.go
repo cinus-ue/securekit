@@ -29,12 +29,16 @@ var Text = cli.Command{
 func textEncAction(c *cli.Context) (err error) {
 	source := kit.GetInput("Please enter a message:")
 	password := kit.GetEncPassword()
+
 	dk, salt, err := kit.DeriveKey(password, nil, 32)
 	kit.CheckErr(err)
+
 	block, err := kit.AESCipher(dk)
 	kit.CheckErr(err)
+
 	aesgcm, err := kit.AESGCM(block)
 	kit.CheckErr(err)
+
 	ciphertext := aesgcm.Seal(nil, salt, []byte(source), nil)
 	// Append the salt to the end of file
 	ciphertext = append(ciphertext, salt...)
@@ -45,17 +49,23 @@ func textEncAction(c *cli.Context) (err error) {
 func textDecAction(c *cli.Context) (err error) {
 	source := kit.GetInput("Paste the encrypted message here to decrypt:")
 	password := kit.GetDecPassword()
+
 	ciphertext, err := base64.StdEncoding.DecodeString(source)
 	kit.CheckErr(err)
+
 	nonce := ciphertext[len(ciphertext)-12:]
 	dk, _, err := kit.DeriveKey(password, nonce, 32)
 	kit.CheckErr(err)
+
 	block, err := kit.AESCipher(dk)
 	kit.CheckErr(err)
+
 	aesgcm, err := kit.AESGCM(block)
 	kit.CheckErr(err)
+
 	plaintext, err := aesgcm.Open(nil, nonce, ciphertext[:len(ciphertext)-12], nil)
 	kit.CheckErr(err)
+
 	fmt.Printf("\n[*]Output Data->%s\n", plaintext)
 	return nil
 }

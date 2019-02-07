@@ -28,8 +28,8 @@ var Hex = cli.Command{
 
 func hexEncAction(c *cli.Context) (err error) {
 	text := kit.GetInput("Please enter a message:")
-	result := hex.EncodeToString([]byte(text))
-	fmt.Printf("[*]Hex->%s\n", string(result))
+	ret := hex.EncodeToString([]byte(text))
+	fmt.Printf("[*]Hex->%s\n", ret)
 	return nil
 }
 

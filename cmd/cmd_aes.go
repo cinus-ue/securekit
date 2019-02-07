@@ -27,7 +27,6 @@ var Aes = cli.Command{
 			Name:                   "enc",
 			Aliases:                []string{"e"},
 			Usage:                  "Encrypt the input data using AES-256-CTR",
-			UseShortOptionHandling: true,
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
 					Name:  "del,d",
@@ -40,7 +39,6 @@ var Aes = cli.Command{
 			Name:                   "dec",
 			Aliases:                []string{"d"},
 			Usage:                  "Decrypt the input data using AES-256-CTR",
-			UseShortOptionHandling: true,
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
 					Name:  "del,d",
@@ -54,9 +52,9 @@ var Aes = cli.Command{
 
 func aesEncAction(c *cli.Context) (err error) {
 	var delete = c.Bool("del")
-	source := kit.GetInput("Please enter the path of the files:")
+	source := kit.GetInput("Please enter path to scan:")
 
-	files, err := kit.PathScan(source, false)
+	files, err := kit.PathScan(source, true)
 	kit.CheckErr(err)
 
 	password := kit.GetEncPassword()
@@ -73,9 +71,9 @@ func aesEncAction(c *cli.Context) (err error) {
 
 func aesDecAction(c *cli.Context) (err error) {
 	var delete = c.Bool("del")
-	source := kit.GetInput("Please enter the path of the files:")
+	source := kit.GetInput("Please enter path to scan:")
 
-	files, err := kit.PathScan(source, false)
+	files, err := kit.PathScan(source, true)
 	kit.CheckErr(err)
 
 	password := kit.GetDecPassword()
@@ -95,30 +93,39 @@ func fileEncrypt(source string, password []byte, delete bool) {
 		<-limits
 		waitGroup.Done()
 	}()
+
 	suffix := path.Ext(source)
 	if strings.Compare(suffix, AESEXT) == 0 {
 		return
 	}
 
 	fmt.Printf("\n[*]processing file:%s ", source)
+
 	inFile, err := os.Open(source)
 	kit.CheckErr(err)
+
 	dk, _, err := kit.DeriveKey(password, []byte(password), 32)
 	kit.CheckErr(err)
+
 	block, err := kit.AESCipher(dk)
 	kit.CheckErr(err)
+
 	iv := make([]byte, aes.BlockSize)
 	_, err = io.ReadFull(rand.Reader, iv)
 	kit.CheckErr(err)
+
 	stream := kit.AESCTR(block, iv)
 
 	outFile, err := os.OpenFile(source+AESEXT, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	kit.CheckErr(err)
+
 	defer outFile.Close()
+
 	outFile.Write(iv)
 	writer := &cipher.StreamWriter{S: stream, W: outFile}
 	_, err = io.Copy(writer, inFile)
 	kit.CheckErr(err)
+
 	inFile.Close()
 
 	if delete {
@@ -132,28 +139,36 @@ func fileDecrypt(source string, password []byte, delete bool) {
 		<-limits
 		waitGroup.Done()
 	}()
+
 	suffix := path.Ext(source)
 	if strings.Compare(suffix, AESEXT) != 0 {
 		return
 	}
 
 	fmt.Printf("\n[*]processing file:%s ", source)
+
 	inFile, err := os.Open(source)
 	kit.CheckErr(err)
+
 	dk, _, err := kit.DeriveKey(password, []byte(password), 32)
 	kit.CheckErr(err)
+
 	block, err := kit.AESCipher(dk)
 	kit.CheckErr(err)
+
 	iv := make([]byte, aes.BlockSize)
 	inFile.Read(iv)
 	stream := kit.AESCTR(block, iv)
 
 	outFile, err := os.OpenFile(source[:len(source)-len(AESEXT)], os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	kit.CheckErr(err)
+
 	defer outFile.Close()
+
 	reader := &cipher.StreamReader{S: stream, R: inFile}
 	_, err = io.Copy(outFile, reader)
 	kit.CheckErr(err)
+
 	inFile.Close()
 
 	if delete {

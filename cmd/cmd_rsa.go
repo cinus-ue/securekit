@@ -51,7 +51,7 @@ var Rsa = cli.Command{
 }
 
 func rsaEncAction(c *cli.Context) (err error) {
-	source := kit.GetInput("Please enter the path of the file:")
+	source := kit.GetInput("Please enter the path of the source file:")
 	key := kit.GetInput("Please enter the path of the public key:")
 
 	puk, err := ioutil.ReadFile(key)
@@ -73,7 +73,7 @@ func rsaEncAction(c *cli.Context) (err error) {
 }
 
 func rsaDecAction(c *cli.Context) (err error) {
-	source := kit.GetInput("Please enter the path of the file:")
+	source := kit.GetInput("Please enter the path of the source file:")
 	key := kit.GetInput("Please enter the path of the private key:")
 
 	prk, err := ioutil.ReadFile(key)
@@ -95,7 +95,7 @@ func rsaDecAction(c *cli.Context) (err error) {
 }
 
 func rsaSignAction(c *cli.Context) (err error) {
-	source := kit.GetInput("Please enter the path of the file:")
+	source := kit.GetInput("Please enter the path of the source file:")
 	key := kit.GetInput("Please enter the path of the private key:")
 
 	prk, err := ioutil.ReadFile(key)
@@ -109,7 +109,7 @@ func rsaSignAction(c *cli.Context) (err error) {
 }
 
 func rsaVerifyAction(c *cli.Context) (err error) {
-	source := kit.GetInput("Please enter the path of the file:")
+	source := kit.GetInput("Please enter the path of the source file:")
 	signature := kit.GetInput("Please enter the signature:")
 	key := kit.GetInput("Please enter the path of the public key:")
 

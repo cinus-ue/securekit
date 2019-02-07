@@ -9,19 +9,19 @@ import (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "securekit-go"
+	app.Name = "securekit"
 	app.Usage = "Data security and protection toolkit"
-	app.Version = "1.0.1.181211-alpha"
+	app.Version = "1.1.0.20190118"
 	app.Commands = []cli.Command{
 		cmd.Md5,
 		cmd.Sha,
 		cmd.Hex,
 		cmd.Base64,
+		cmd.Rename,
 		cmd.Aes,
 		cmd.Rsa,
 		cmd.Text,
 		cmd.Steg,
-		cmd.Rename,
 	}
 	err := app.Run(os.Args)
 	kit.CheckErr(err)
