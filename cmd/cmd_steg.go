@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/cinus-ue/securekit-go/kit"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"os"
-	"path/filepath"
+
+	"github.com/cinus-ue/securekit-go/kit"
+	"github.com/cinus-ue/securekit-go/util"
+	"github.com/urfave/cli"
 )
 
 var Steg = cli.Command{
@@ -30,38 +31,48 @@ var Steg = cli.Command{
 	},
 }
 
-func hideAction(c *cli.Context) (err error) {
-	imgPath := kit.GetInput("Please enter the path of the cover image:")
-	msgPath := kit.GetInput("Please enter the path of the message file:")
+func hideAction(*cli.Context)error {
+	imgPath := util.GetInput("Please enter the path of the cover image:")
+	msgPath := util.GetInput("Please enter the path of the message file:")
 
 	coverFile, err := os.Open(imgPath)
-	kit.CheckErr(err)
-	defer coverFile.Close()
-
+	if err != nil{
+		return err
+	}
 	payload, err := ioutil.ReadFile(msgPath)
-	kit.CheckErr(err)
-
+	if err != nil{
+		return err
+	}
 	outFile, err := os.Create("stego-out.png")
-	defer outFile.Close()
+	if err != nil{
+		return err
+	}
+	defer func() {
+		coverFile.Close()
+		outFile.Close()
+	}()
 
-	filename := filepath.Base(msgPath)
+	filename := kit.GetFileName(msgPath)
 	payload = assemble(payload, filename)
 
 	fmt.Printf("[*]Encoding and saving the image...\n")
 	err = kit.ImgEncode(outFile, coverFile, payload)
-	kit.CheckErr(err)
+	if err != nil{
+		return err
+	}
 	outFile.Sync()
 	fmt.Print("[*]Done.\n")
 	return nil
 }
 
-func extractAction(c *cli.Context) (err error) {
-	source := kit.GetInput("Please enter the path of the stego file:")
+func extractAction(*cli.Context)error {
+	source := util.GetInput("Please enter the path of the stego file:")
 
-	infile, err := os.Open(source)
-	kit.CheckErr(err)
-
-	payload, err := kit.ImgDecode(infile)
+	inFile, err := os.Open(source)
+	if err != nil{
+		return err
+	}
+	payload, err := kit.ImgDecode(inFile)
 
 	fileNameSize := uint64(payload[5])
 	size := payload[6:14]
@@ -74,8 +85,14 @@ func extractAction(c *cli.Context) (err error) {
 	fmt.Printf("[*]Extracting %s\n", filename)
 
 	outFile, err := os.Create(filename)
-	kit.CheckErr(err)
-	defer outFile.Close()
+	if err != nil{
+		return err
+	}
+
+	defer func() {
+		inFile.Close()
+		outFile.Close()
+	}()
 
 	msg := payload[14+fileNameSize : 14+fileNameSize+fileSize]
 	outFile.Write(msg)

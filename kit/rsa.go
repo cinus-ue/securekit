@@ -4,6 +4,7 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
@@ -12,13 +13,15 @@ import (
 )
 
 // RSA encrypt
-func RSAEncrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
+func rsaencrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return nil, errors.New("public key error")
 	}
 	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
-	CheckErr(err)
+	if err != nil {
+		return nil, err
+	}
 	puk := pubInterface.(*rsa.PublicKey)
 	segment := (puk.N.BitLen() + 7) / 8
 	hash := crypto.SHA256
@@ -37,7 +40,9 @@ func RSAEncrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 		}
 		byteSequence := plaintext[start:end]
 		segmentEncrypt, err := rsa.EncryptOAEP(hash.New(), rand.Reader, puk, byteSequence, nil)
-		CheckErr(err)
+		if err != nil {
+			return nil, err
+		}
 		data = append(data, segmentEncrypt...)
 		if end == len(plaintext) {
 			break
@@ -47,13 +52,15 @@ func RSAEncrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 }
 
 // RSA decrypt
-func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
+func rsadecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
 		return nil, errors.New("private key error")
 	}
 	prk, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	CheckErr(err)
+	if err != nil {
+		return nil, err
+	}
 	segment := (prk.PublicKey.N.BitLen() + 7) / 8
 	hash := crypto.SHA256
 	var start, end int
@@ -71,7 +78,9 @@ func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 		}
 		segmentEncrypt := ciphertext[start:end]
 		segmentDecrypt, err := rsa.DecryptOAEP(hash.New(), rand.Reader, prk, segmentEncrypt, nil)
-		CheckErr(err)
+		if err != nil {
+			return nil, err
+		}
 		data = append(data, segmentDecrypt...)
 		if end == len(ciphertext) {
 			break
@@ -81,32 +90,48 @@ func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 }
 
 // RSA sign
-func RSASign(origdata, privateKey []byte) (string, error) {
+func RSASign(originData, privateKey []byte) (string, error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
 		return "", errors.New("private key error")
 	}
 	prk, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	CheckErr(err)
-	digest := SHA256(origdata)
+	if err != nil {
+		return "", err
+	}
+
+	h := sha256.New()
+	h.Write(originData)
+	digest := h.Sum(nil)
 	body, err := rsa.SignPKCS1v15(rand.Reader, prk, crypto.SHA256, digest)
-	CheckErr(err)
+	if err != nil {
+		return "", err
+	}
 	return base64.StdEncoding.EncodeToString(body), nil
 }
 
 // RSA verify
-func RSAVerify(signature string, originData,publicKey []byte) (bool, error) {
+func RSAVerify(signature string, originData, publicKey []byte) (bool, error) {
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return false, errors.New("public key error")
 	}
 	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
-	CheckErr(err)
+	if err != nil {
+		return false, err
+	}
 	puk := pubInterface.(*rsa.PublicKey)
-	digest := SHA256(originData)
+
+	h := sha256.New()
+	h.Write(originData)
+	digest := h.Sum(nil)
 	body, err := base64.StdEncoding.DecodeString(signature)
-	CheckErr(err)
+	if err != nil {
+		return false, err
+	}
 	err = rsa.VerifyPKCS1v15(puk, crypto.SHA256, digest, body)
-	CheckErr(err)
+	if err != nil {
+		return false, err
+	}
 	return true, nil
 }

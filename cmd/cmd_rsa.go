@@ -1,17 +1,13 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"github.com/cinus-ue/securekit-go/kit"
+	"github.com/cinus-ue/securekit-go/util"
 	"github.com/urfave/cli"
 	"io/ioutil"
-	"path"
 	"strconv"
-	"strings"
 )
-
-const RSAEXT = ".rsa"
 
 var Rsa = cli.Command{
 	Name:  "rsa",
@@ -30,13 +26,13 @@ var Rsa = cli.Command{
 			Action:  rsaDecAction,
 		},
 		{
-			Name:    "sign",
+			Name:    "sig",
 			Aliases: []string{"s"},
 			Usage:   "Sign the data (file) and output the signed result",
 			Action:  rsaSignAction,
 		},
 		{
-			Name:    "verify",
+			Name:    "ver",
 			Aliases: []string{"v"},
 			Usage:   "Verify the signature using an RSA public key",
 			Action:  rsaVerifyAction,
@@ -50,91 +46,84 @@ var Rsa = cli.Command{
 	},
 }
 
-func rsaEncAction(c *cli.Context) (err error) {
-	source := kit.GetInput("Please enter the path of the source file:")
-	key := kit.GetInput("Please enter the path of the public key:")
+func rsaEncAction(*cli.Context)error {
+	source := util.GetInput("Please enter the path of the source file:")
+	key := util.GetInput("Please enter the path of the public key:")
 
-	puk, err := ioutil.ReadFile(key)
-	kit.CheckErr(err)
-
-	suffix := path.Ext(source)
-	if strings.Compare(suffix, RSAEXT) == 0 {
-		return errors.New("the file has been encrypted")
-	}
-
-	data, err := ioutil.ReadFile(source)
-	kit.CheckErr(err)
 	fmt.Printf("[*]processing file:%s ", source)
-	ciphertext, err := kit.RSAEncrypt(data, puk)
-	err = kit.SaveFile(source+RSAEXT, ciphertext)
-	kit.CheckErr(err)
+	err := kit.RSAFileEnc(source, key)
+	if err != nil{
+		return err
+	}
 	fmt.Print("\n[*]Operation Completed\n")
 	return nil
 }
 
-func rsaDecAction(c *cli.Context) (err error) {
-	source := kit.GetInput("Please enter the path of the source file:")
-	key := kit.GetInput("Please enter the path of the private key:")
+func rsaDecAction(*cli.Context)error {
+	source := util.GetInput("Please enter the path of the source file:")
+	key := util.GetInput("Please enter the path of the private key:")
 
-	prk, err := ioutil.ReadFile(key)
-	kit.CheckErr(err)
-
-	suffix := path.Ext(source)
-	if strings.Compare(suffix, RSAEXT) != 0 {
-		return errors.New("the file is not an encrypted file")
-	}
-
-	data, err := ioutil.ReadFile(source)
-	kit.CheckErr(err)
 	fmt.Printf("[*]processing file:%s ", source)
-	plaintext, err := kit.RSADecrypt(data, prk)
-	err = kit.SaveFile(source[:len(source)-len(RSAEXT)], plaintext)
-	kit.CheckErr(err)
+	err := kit.RSAFileDec(source, key)
+	if err != nil{
+		return err
+	}
 	fmt.Print("\n[*]Operation Completed\n")
 	return nil
 }
 
-func rsaSignAction(c *cli.Context) (err error) {
-	source := kit.GetInput("Please enter the path of the source file:")
-	key := kit.GetInput("Please enter the path of the private key:")
+func rsaSignAction(*cli.Context)error {
+	source := util.GetInput("Please enter the path of the source file:")
+	key := util.GetInput("Please enter the path of the private key:")
 
 	prk, err := ioutil.ReadFile(key)
-	kit.CheckErr(err)
+	if err != nil{
+		return err
+	}
 	data, err := ioutil.ReadFile(source)
-	kit.CheckErr(err)
+	if err != nil{
+		return err
+	}
 	signature, err := kit.RSASign(data, prk)
 	fmt.Printf("[*]Signature->%s\n", signature)
 	return nil
-
 }
 
-func rsaVerifyAction(c *cli.Context) (err error) {
-	source := kit.GetInput("Please enter the path of the source file:")
-	signature := kit.GetInput("Please enter the signature:")
-	key := kit.GetInput("Please enter the path of the public key:")
+func rsaVerifyAction(*cli.Context)error {
+	source := util.GetInput("Please enter the path of the source file:")
+	key := util.GetInput("Please enter the path of the public key:")
+	signature := util.GetInput("Please enter the signature:")
 
 	puk, err := ioutil.ReadFile(key)
-	kit.CheckErr(err)
+	if err != nil{
+		return err
+	}
 	data, err := ioutil.ReadFile(source)
-	kit.CheckErr(err)
+	if err != nil{
+		return err
+	}
 	ret, err := kit.RSAVerify(signature, data, puk)
-	kit.CheckErr(err)
+	if err != nil{
+		return err
+	}
 	fmt.Printf("[*]RSA Verify->%t\n", ret)
 	return nil
-
 }
 
-func genKeyAction(c *cli.Context) (err error) {
-	source := kit.GetInput("The key size is:")
+func genKeyAction(*cli.Context)error {
+	source := util.GetInput("The key size is:")
 	size, err := strconv.Atoi(source)
-	kit.CheckErr(err)
-
+	if err != nil{
+		return err
+	}
 	privateKey, err := kit.GenerateRSAKey(size)
-	kit.CheckErr(err)
-
+	if err != nil{
+		return err
+	}
 	err = kit.SaveRSAKey(privateKey)
-	kit.CheckErr(err)
-
+	if err != nil{
+		return err
+	}
 	fmt.Print("Keys Generated!\n")
 	return nil
 }

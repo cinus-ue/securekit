@@ -10,7 +10,7 @@ import (
 	"io"
 )
 
-func DeriveKey(passphrase, salt []byte, keyLen int) ([]byte, []byte, error) {
+func deriveKey(passphrase, salt []byte, keyLen int) ([]byte, []byte, error) {
 	if salt == nil {
 		salt = make([]byte, 12)
 		// http://www.ietf.org/rfc/rfc2898.txt
@@ -24,7 +24,7 @@ func DeriveKey(passphrase, salt []byte, keyLen int) ([]byte, []byte, error) {
 	return pbkdf2.Key(passphrase, salt, 1000, keyLen, sha256.New), salt, nil
 }
 
-func AESCipher(dk []byte) (cipher.Block, error) {
+func aescipher(dk []byte) (cipher.Block, error) {
 	blk, err := aes.NewCipher(dk)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func AESCipher(dk []byte) (cipher.Block, error) {
 	return blk, nil
 }
 
-func AESGCM(block cipher.Block) (cipher.AEAD, error) {
+func aesgcm(block cipher.Block) (cipher.AEAD, error) {
 	aead, err := cipher.NewGCM(block)
 	if err != nil {
 		return nil, err
@@ -40,12 +40,12 @@ func AESGCM(block cipher.Block) (cipher.AEAD, error) {
 	return aead, nil
 }
 
-func AESCTR(block cipher.Block, iv []byte) cipher.Stream {
+func aesctr(block cipher.Block, iv []byte) cipher.Stream {
 	stream := cipher.NewCTR(block, iv)
 	return stream
 }
 
-func AESCBC(block cipher.Block, iv []byte, enc bool) cipher.BlockMode {
+func aescbc(block cipher.Block, iv []byte, enc bool) cipher.BlockMode {
 	if enc {
 		blockmode := cipher.NewCBCEncrypter(block, iv)
 		return blockmode
@@ -54,7 +54,7 @@ func AESCBC(block cipher.Block, iv []byte, enc bool) cipher.BlockMode {
 	return blockmode
 }
 
-func AESCFB(block cipher.Block, iv []byte, enc bool) cipher.Stream {
+func aescfb(block cipher.Block, iv []byte, enc bool) cipher.Stream {
 	if enc {
 		stream := cipher.NewCFBEncrypter(block, iv)
 		return stream
@@ -63,7 +63,7 @@ func AESCFB(block cipher.Block, iv []byte, enc bool) cipher.Stream {
 	return stream
 }
 
-func AESOFB(block cipher.Block, iv []byte) cipher.Stream {
+func aesofb(block cipher.Block, iv []byte) cipher.Stream {
 	stream := cipher.NewOFB(block, iv)
 	return stream
 }

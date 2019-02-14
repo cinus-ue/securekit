@@ -11,7 +11,9 @@ import (
 // Generate new RSA keypair
 func GenerateRSAKey(bits int) (*rsa.PrivateKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
-	CheckErr(err)
+	if err != nil {
+		return nil, err
+	}
 	return privateKey, nil
 }
 
@@ -24,7 +26,9 @@ func Stringify(privateKey *rsa.PrivateKey) (string, string, error) {
 		Bytes:   privateKeyDer,
 	}
 	publicKeyDer, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
-	CheckErr(err)
+	if err != nil {
+		return "", "", err
+	}
 	publicKeyBlock := pem.Block{
 		Type:    "RSA PUBLIC KEY",
 		Headers: nil,
@@ -42,20 +46,30 @@ func SaveRSAKey(privateKey *rsa.PrivateKey) error {
 		Bytes:   privateKeyDer,
 	}
 	file, err := os.Create("private.pem")
-	CheckErr(err)
+	if err != nil {
+		return err
+	}
 	err = pem.Encode(file, privateKeyBlock)
-	CheckErr(err)
+	if err != nil {
+		return err
+	}
 	publicKeyDer, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
-	CheckErr(err)
+	if err != nil {
+		return err
+	}
 	publicKeyBlock := &pem.Block{
 		Type:    "RSA PUBLIC KEY",
 		Headers: nil,
 		Bytes:   publicKeyDer,
 	}
 	file, err = os.Create("public.pem")
-	CheckErr(err)
+	if err != nil {
+		return err
+	}
 	err = pem.Encode(file, publicKeyBlock)
-	CheckErr(err)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

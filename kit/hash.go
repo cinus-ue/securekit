@@ -72,10 +72,14 @@ func Pbkdf2Sha256(data, salt string, iterations int) string {
 
 func Checksum(path string, hasher hash.Hash) ([]byte, error) {
 	file, err := os.Open(path)
-	CheckErr(err)
+	if err != nil {
+		return nil, err
+	}
 	defer file.Close()
 	reader := bufio.NewReader(file)
 	_, err = io.Copy(hasher, reader)
-	CheckErr(err)
+	if err != nil {
+		return nil, err
+	}
 	return hasher.Sum(nil), nil
 }
