@@ -1,4 +1,4 @@
-package kit
+package img
 
 import (
 	"encoding/binary"
@@ -46,7 +46,7 @@ func getBits(data []byte) []bool {
 }
 
 // Encode takes an image and encodes a payload into the LSB
-func ImgEncode(w io.Writer, r io.Reader, payload []byte) error {
+func LSBEncoder(w io.Writer, r io.Reader, payload []byte) error {
 	img, _, err := image.Decode(r)
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func assemble(data []uint8) []byte {
 }
 
 // Decode takes an image and prints the payload that was encoded
-func ImgDecode(r io.Reader) ([]byte, error) {
+func LSBDecoder(r io.Reader) ([]byte, error) {
 	img, err := png.Decode(r)
 	if err != nil {
 		return nil, err

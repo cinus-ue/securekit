@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/cinus-ue/securekit-go/kit"
+	"github.com/cinus-ue/securekit-go/kit/img"
 	"github.com/cinus-ue/securekit-go/util"
 	"github.com/urfave/cli"
 )
@@ -56,7 +57,7 @@ func hideAction(*cli.Context)error {
 	payload = assemble(payload, filename)
 
 	fmt.Printf("[*]Encoding and saving the image...\n")
-	err = kit.ImgEncode(outFile, coverFile, payload)
+	err = img.LSBEncoder(outFile, coverFile, payload)
 	if err != nil{
 		return err
 	}
@@ -72,7 +73,7 @@ func extractAction(*cli.Context)error {
 	if err != nil{
 		return err
 	}
-	payload, err := kit.ImgDecode(inFile)
+	payload, err := img.LSBDecoder(inFile)
 
 	fileNameSize := uint64(payload[5])
 	size := payload[6:14]

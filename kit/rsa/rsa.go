@@ -1,4 +1,4 @@
-package kit
+package rsa
 
 import (
 	"crypto"
@@ -13,7 +13,7 @@ import (
 )
 
 // RSA encrypt
-func rsaencrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
+func RSAEncrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return nil, errors.New("public key error")
@@ -52,7 +52,7 @@ func rsaencrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 }
 
 // RSA decrypt
-func rsadecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
+func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
 		return nil, errors.New("private key error")

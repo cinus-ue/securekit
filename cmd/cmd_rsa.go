@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/cinus-ue/securekit-go/kit"
-	"github.com/cinus-ue/securekit-go/util"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"strconv"
+
+	"github.com/cinus-ue/securekit-go/kit"
+	"github.com/cinus-ue/securekit-go/kit/rsa"
+	"github.com/cinus-ue/securekit-go/util"
+	"github.com/urfave/cli"
 )
 
 var Rsa = cli.Command{
@@ -84,7 +86,7 @@ func rsaSignAction(*cli.Context)error {
 	if err != nil{
 		return err
 	}
-	signature, err := kit.RSASign(data, prk)
+	signature, err := rsa.RSASign(data, prk)
 	fmt.Printf("[*]Signature->%s\n", signature)
 	return nil
 }
@@ -102,7 +104,7 @@ func rsaVerifyAction(*cli.Context)error {
 	if err != nil{
 		return err
 	}
-	ret, err := kit.RSAVerify(signature, data, puk)
+	ret, err := rsa.RSAVerify(signature, data, puk)
 	if err != nil{
 		return err
 	}
@@ -116,11 +118,11 @@ func genKeyAction(*cli.Context)error {
 	if err != nil{
 		return err
 	}
-	privateKey, err := kit.GenerateRSAKey(size)
+	privateKey, err := rsa.GenerateRSAKey(size)
 	if err != nil{
 		return err
 	}
-	err = kit.SaveRSAKey(privateKey)
+	err = rsa.SaveRSAKey(privateKey)
 	if err != nil{
 		return err
 	}

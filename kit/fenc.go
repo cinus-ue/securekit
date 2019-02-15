@@ -10,6 +10,8 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"github.com/cinus-ue/securekit-go/kit/rsa"
 )
 
 const AESEXT = ".aes"
@@ -126,7 +128,7 @@ func RSAFileEnc(source string, key string) error {
 	if err != nil {
 		return err
 	}
-	ciphertext, err := rsaencrypt(data, puk)
+	ciphertext, err := rsa.RSAEncrypt(data, puk)
 	err = SaveFile(source+RSAEXT, ciphertext)
 	if err != nil {
 		return err
@@ -147,7 +149,7 @@ func RSAFileDec(source string, key string) error {
 	if err != nil {
 		return err
 	}
-	plaintext, err := rsadecrypt(data, prk)
+	plaintext, err := rsa.RSADecrypt(data, prk)
 	err = SaveFile(source[:len(source)-len(RSAEXT)], plaintext)
 	if err != nil {
 		return err
