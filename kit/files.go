@@ -2,7 +2,6 @@ package kit
 
 import (
 	"bytes"
-	"container/list"
 	"io"
 	"os"
 	"path/filepath"
@@ -30,8 +29,8 @@ func ValidateFile(file string) bool {
 	return true
 }
 
-func PathScan(path string, skipDir bool) (*list.List, error) {
-	files := list.New()
+func PathScan(path string, skipDir bool) (*Stack, error) {
+	files := NewStack()
 	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
@@ -39,12 +38,9 @@ func PathScan(path string, skipDir bool) (*list.List, error) {
 		if skipDir && f.IsDir() {
 			return nil
 		}
-		files.PushBack(path)
+		files.Push(path)
 		return nil
 	})
-	if !skipDir {
-		files.Remove(files.Front())
-	}
 	return files, err
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"time"
 
 	"github.com/cinus-ue/securekit-go/kit"
 	"github.com/cinus-ue/securekit-go/kit/rsa"
@@ -19,13 +20,25 @@ var Rsa = cli.Command{
 			Name:    "enc",
 			Aliases: []string{"e"},
 			Usage:   "Encrypt the data (file) using an RSA public key",
-			Action:  rsaEncAction,
+			Flags: []cli.Flag{
+				&cli.BoolFlag{
+					Name:  "del,d",
+					Usage: "Delete source file",
+				},
+			},
+			Action: rsaEncAction,
 		},
 		{
 			Name:    "dec",
 			Aliases: []string{"d"},
 			Usage:   "Decrypt the data (file) using an RSA private key",
-			Action:  rsaDecAction,
+			Flags: []cli.Flag{
+				&cli.BoolFlag{
+					Name:  "del,d",
+					Usage: "Delete source file",
+				},
+			},
+			Action: rsaDecAction,
 		},
 		{
 			Name:    "sig",
@@ -48,42 +61,72 @@ var Rsa = cli.Command{
 	},
 }
 
-func rsaEncAction(*cli.Context)error {
-	source := util.GetInput("Please enter the path of the source file:")
+func rsaEncAction(c *cli.Context) error {
+	var delete = c.Bool("del")
+	source := util.GetInput("Please enter path to scan:")
 	key := util.GetInput("Please enter the path of the public key:")
 
-	fmt.Printf("[*]processing file:%s ", source)
-	err := kit.RSAFileEnc(source, key)
-	if err != nil{
+	files, err := kit.PathScan(source, true)
+	if err != nil {
 		return err
+	}
+	for files.Len() > 0 {
+		limits <- 1
+		path := files.Pop()
+		fmt.Printf("\n[*]processing file:%s ", path.(string))
+		go func() {
+			err = kit.RSAFileEnc(path.(string), key, delete, limits)
+			util.CheckErr(err)
+		}()
+	}
+	for status {
+		time.Sleep(time.Second * 5)
+		if len(limits) == 0 && files.IsEmpty() {
+			status = false
+		}
 	}
 	fmt.Print("\n[*]Operation Completed\n")
 	return nil
 }
 
-func rsaDecAction(*cli.Context)error {
-	source := util.GetInput("Please enter the path of the source file:")
+func rsaDecAction(c *cli.Context) error {
+	var delete = c.Bool("del")
+	source := util.GetInput("Please enter path to scan:")
 	key := util.GetInput("Please enter the path of the private key:")
 
-	fmt.Printf("[*]processing file:%s ", source)
-	err := kit.RSAFileDec(source, key)
-	if err != nil{
+	files, err := kit.PathScan(source, true)
+	if err != nil {
 		return err
+	}
+	for files.Len() > 0 {
+		limits <- 1
+		path := files.Pop()
+		fmt.Printf("\n[*]processing file:%s ", path.(string))
+		go func() {
+			err = kit.RSAFileDec(path.(string), key, delete, limits)
+			util.CheckErr(err)
+		}()
+	}
+	for status {
+		time.Sleep(time.Second * 5)
+		if len(limits) == 0 && files.IsEmpty() {
+			status = false
+		}
 	}
 	fmt.Print("\n[*]Operation Completed\n")
 	return nil
 }
 
-func rsaSignAction(*cli.Context)error {
+func rsaSignAction(*cli.Context) error {
 	source := util.GetInput("Please enter the path of the source file:")
 	key := util.GetInput("Please enter the path of the private key:")
 
 	prk, err := ioutil.ReadFile(key)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	data, err := ioutil.ReadFile(source)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	signature, err := rsa.RSASign(data, prk)
@@ -91,39 +134,39 @@ func rsaSignAction(*cli.Context)error {
 	return nil
 }
 
-func rsaVerifyAction(*cli.Context)error {
+func rsaVerifyAction(*cli.Context) error {
 	source := util.GetInput("Please enter the path of the source file:")
 	key := util.GetInput("Please enter the path of the public key:")
 	signature := util.GetInput("Please enter the signature:")
 
 	puk, err := ioutil.ReadFile(key)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	data, err := ioutil.ReadFile(source)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	ret, err := rsa.RSAVerify(signature, data, puk)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	fmt.Printf("[*]RSA Verify->%t\n", ret)
 	return nil
 }
 
-func genKeyAction(*cli.Context)error {
+func genKeyAction(*cli.Context) error {
 	source := util.GetInput("The key size is:")
 	size, err := strconv.Atoi(source)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	privateKey, err := rsa.GenerateRSAKey(size)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	err = rsa.SaveRSAKey(privateKey)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	fmt.Print("Keys Generated!\n")

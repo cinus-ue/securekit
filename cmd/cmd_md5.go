@@ -26,13 +26,13 @@ var Md5 = cli.Command{
 	Action: md5Action,
 }
 
-func md5Action(c *cli.Context)error {
+func md5Action(c *cli.Context) error {
 	var file = c.Bool("file")
 	switch {
 	case file:
 		source := util.GetInput("Please enter the path of the source file:")
 		ret32, err := kit.Checksum(source, md5.New())
-		if err != nil{
+		if err != nil {
 			return err
 		}
 		fmt.Printf("[*]Md5-16->%s", hex.EncodeToString(ret32)[8:24])

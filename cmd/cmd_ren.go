@@ -27,18 +27,19 @@ var Rename = cli.Command{
 	},
 }
 
-func reEncAction(*cli.Context)error {
+func reEncAction(*cli.Context) error {
 	source := util.GetInput("Please enter path to scan:")
 	files, err := kit.PathScan(source, false)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
 	password := util.GetEncPassword()
-	for e := files.Back(); e != nil; e = e.Prev() {
-		fmt.Printf("\n[*]processing file:%s", e.Value.(string))
-		err = kit.Rename(e.Value.(string), password)
-		if err != nil{
+	for files.Len() > 0 {
+		path := files.Pop()
+		fmt.Printf("\n[*]processing file:%s", path.(string))
+		err = kit.Rename(path.(string), password)
+		if err != nil {
 			return err
 		}
 	}
@@ -46,18 +47,19 @@ func reEncAction(*cli.Context)error {
 	return nil
 }
 
-func reDecAction(*cli.Context)error{
+func reDecAction(*cli.Context) error {
 	source := util.GetInput("Please enter path to scan:")
 	files, err := kit.PathScan(source, false)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
 	password := util.GetDecPassword()
-	for e := files.Back(); e != nil; e = e.Prev() {
-		fmt.Printf("\n[*]processing file:%s", e.Value.(string))
-		err = kit.Recover(e.Value.(string), password)
-		if err != nil{
+	for files.Len() > 0 {
+		path := files.Pop()
+		fmt.Printf("\n[*]processing file:%s", path.(string))
+		err = kit.Recover(path.(string), password)
+		if err != nil {
 			return err
 		}
 	}

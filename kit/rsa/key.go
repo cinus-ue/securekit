@@ -18,7 +18,7 @@ func GenerateRSAKey(bits int) (*rsa.PrivateKey, error) {
 }
 
 // Stringify private key
-func Stringify(privateKey *rsa.PrivateKey) (string, string, error) {
+func Stringify(privateKey *rsa.PrivateKey) (pri string,pub string,err error) {
 	privateKeyDer := x509.MarshalPKCS1PrivateKey(privateKey)
 	privateKeyBlock := pem.Block{
 		Type:    "RSA PRIVATE KEY",
@@ -27,7 +27,7 @@ func Stringify(privateKey *rsa.PrivateKey) (string, string, error) {
 	}
 	publicKeyDer, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
 	if err != nil {
-		return "", "", err
+		return
 	}
 	publicKeyBlock := pem.Block{
 		Type:    "RSA PUBLIC KEY",

@@ -90,14 +90,15 @@ func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 }
 
 // RSA sign
-func RSASign(originData, privateKey []byte) (string, error) {
+func RSASign(originData, privateKey []byte) (sig string,err error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
-		return "", errors.New("private key error")
+        err = errors.New("private key error")
+		return
 	}
 	prk, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		return "", err
+		return
 	}
 
 	h := sha256.New()
@@ -105,7 +106,7 @@ func RSASign(originData, privateKey []byte) (string, error) {
 	digest := h.Sum(nil)
 	body, err := rsa.SignPKCS1v15(rand.Reader, prk, crypto.SHA256, digest)
 	if err != nil {
-		return "", err
+		return
 	}
 	return base64.StdEncoding.EncodeToString(body), nil
 }

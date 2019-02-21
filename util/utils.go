@@ -57,3 +57,9 @@ func GetInput(s string) string {
 	}
 }
 
+func CheckErr(err error){
+	if err != nil {
+		fmt.Printf("\n[*]ERROR:%s", err.Error())
+		os.Exit(1)
+	}
+}

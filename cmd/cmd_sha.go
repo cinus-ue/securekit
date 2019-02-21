@@ -28,7 +28,7 @@ var Sha = cli.Command{
 	Action: shaAction,
 }
 
-func shaAction(c *cli.Context)error {
+func shaAction(c *cli.Context) error {
 	var file = c.Bool("file")
 	switch {
 	case file:
@@ -38,25 +38,25 @@ func shaAction(c *cli.Context)error {
 		switch algo {
 		case "1":
 			ret1, err := kit.Checksum(source, sha1.New())
-			if err != nil{
+			if err != nil {
 				return err
 			}
 			fmt.Printf("[*]SHA1->%s", hex.EncodeToString(ret1))
 		case "2":
 			ret256, err := kit.Checksum(source, sha256.New())
-			if err != nil{
+			if err != nil {
 				return err
 			}
 			fmt.Printf("[*]SHA256->%s", hex.EncodeToString(ret256))
 		case "3":
 			ret384, err := kit.Checksum(source, sha512.New384())
-			if err != nil{
+			if err != nil {
 				return err
 			}
 			fmt.Printf("[*]SHA384->%s", hex.EncodeToString(ret384))
 		case "4":
 			ret512, err := kit.Checksum(source, sha512.New())
-			if err != nil{
+			if err != nil {
 				return err
 			}
 			fmt.Printf("[*]SHA512->%s\n", hex.EncodeToString(ret512))

@@ -12,7 +12,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "securekit"
 	app.Usage = "Data security and protection toolkit"
-	app.Version = "1.1.2.20190215"
+	app.Version = "1.1.3.20190221"
 	app.Commands = []cli.Command{
 		cmd.Md5,
 		cmd.Sha,

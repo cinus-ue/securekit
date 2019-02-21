@@ -28,24 +28,24 @@ var Text = cli.Command{
 	},
 }
 
-func textEncAction(*cli.Context)error{
+func textEncAction(*cli.Context) error {
 	source := util.GetInput("Please enter a message:")
 	password := util.GetEncPassword()
 
-	ciphertext,err := kit.AESTextEnc(source,password)
-	if err != nil{
+	ciphertext, err := kit.AESTextEnc(source, password)
+	if err != nil {
 		return err
 	}
 	fmt.Printf("\n[*]Output Data->%s\n", base64.StdEncoding.EncodeToString(ciphertext))
 	return nil
 }
 
-func textDecAction(*cli.Context)error {
+func textDecAction(*cli.Context) error {
 	source := util.GetInput("Paste the encrypted text here to decrypt:")
 	password := util.GetDecPassword()
 
-    plaintext,err := kit.AESTextDec(source,password)
-	if err != nil{
+	plaintext, err := kit.AESTextDec(source, password)
+	if err != nil {
 		return err
 	}
 	fmt.Printf("\n[*]Output Data->%s\n", plaintext)

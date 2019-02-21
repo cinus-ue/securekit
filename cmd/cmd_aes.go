@@ -2,14 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/cinus-ue/securekit-go/kit"
 	"github.com/cinus-ue/securekit-go/util"
 	"github.com/urfave/cli"
 )
-
-var limits = make(chan int, 3)
-var status = true
 
 var Aes = cli.Command{
 	Name:  "aes",
@@ -42,22 +40,27 @@ var Aes = cli.Command{
 	},
 }
 
-func aesEncAction(c *cli.Context)error {
+func aesEncAction(c *cli.Context) error {
 	var delete = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 
 	files, err := kit.PathScan(source, true)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	password := util.GetEncPassword()
-	for e := files.Front(); e != nil; e = e.Next() {
+	for files.Len() > 0 {
 		limits <- 1
-		fmt.Printf("\n[*]processing file:%s ", e.Value.(string))
-		go kit.AESFileEnc(e.Value.(string), password, delete, limits)
+		path := files.Pop()
+		fmt.Printf("\n[*]processing file:%s ", path.(string))
+		go func() {
+			err = kit.AESFileEnc(path.(string), password, delete, limits)
+			util.CheckErr(err)
+		}()
 	}
 	for status {
-		if len(limits) == 0 {
+		time.Sleep(time.Second * 5)
+		if len(limits) == 0 && files.IsEmpty() {
 			status = false
 		}
 	}
@@ -65,23 +68,28 @@ func aesEncAction(c *cli.Context)error {
 	return nil
 }
 
-func aesDecAction(c *cli.Context)error {
+func aesDecAction(c *cli.Context) error {
 	var delete = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 
 	files, err := kit.PathScan(source, true)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
 	password := util.GetDecPassword()
-	for e := files.Front(); e != nil; e = e.Next() {
+	for files.Len() > 0 {
 		limits <- 1
-		fmt.Printf("\n[*]processing file:%s ", e.Value.(string))
-		go kit.AESFileDec(e.Value.(string), password, delete, limits)
+		path := files.Pop()
+		fmt.Printf("\n[*]processing file:%s ", path.(string))
+		go func() {
+			err = kit.AESFileDec(path.(string), password, delete, limits)
+			util.CheckErr(err)
+		}()
 	}
 	for status {
-		if len(limits) == 0 {
+		time.Sleep(time.Second * 5)
+		if len(limits) == 0 && files.IsEmpty() {
 			status = false
 		}
 	}
