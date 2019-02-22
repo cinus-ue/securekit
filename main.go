@@ -16,6 +16,7 @@ func main() {
 	app.Commands = []cli.Command{
 		cmd.Md5,
 		cmd.Sha,
+		cmd.Pass,
 		cmd.Rename,
 		cmd.Aes,
 		cmd.Rsa,

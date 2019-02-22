@@ -12,7 +12,7 @@ import (
 
 var Md5 = cli.Command{
 	Name:  "md5",
-	Usage: "MD5 Hash Generator",
+	Usage: "MD5 hash generator",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "text,t",

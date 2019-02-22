@@ -14,7 +14,7 @@ import (
 
 var Sha = cli.Command{
 	Name:  "sha",
-	Usage: "SHA Hash Generator",
+	Usage: "SHA hash generator",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "text,t",

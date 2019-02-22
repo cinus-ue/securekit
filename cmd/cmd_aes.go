@@ -58,10 +58,10 @@ func aesEncAction(c *cli.Context) error {
 			util.CheckErr(err)
 		}()
 	}
-	for status {
+	for wait {
 		time.Sleep(time.Second * 5)
 		if len(limits) == 0 && files.IsEmpty() {
-			status = false
+			wait = false
 		}
 	}
 	fmt.Print("\n[*]Operation Completed\n")
@@ -87,10 +87,10 @@ func aesDecAction(c *cli.Context) error {
 			util.CheckErr(err)
 		}()
 	}
-	for status {
+	for wait {
 		time.Sleep(time.Second * 5)
 		if len(limits) == 0 && files.IsEmpty() {
-			status = false
+			wait = false
 		}
 	}
 	fmt.Print("\n[*]Operation Completed\n")
