@@ -22,14 +22,13 @@ func AESTextEnc(source string, pass []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-
 func AESTextDec(source string, pass []byte) ([]byte, error) {
 	ciphertext, err := base64.StdEncoding.DecodeString(source)
 	if err != nil {
 		return nil, err
 	}
-	nonce := ciphertext[len(ciphertext)-12:]
-	dk, _, err := deriveKey(pass, nonce, 32)
+	salt := ciphertext[len(ciphertext)-12:]
+	dk, _, err := deriveKey(pass, salt, 32)
 	if err != nil {
 		return nil, err
 	}
@@ -41,9 +40,9 @@ func AESTextDec(source string, pass []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	plaintext, err := gcm.Open(nil, nonce, ciphertext[:len(ciphertext)-12], nil)
+	plaintext, err := gcm.Open(nil, salt, ciphertext[:len(ciphertext)-12], nil)
 	if err != nil {
 		return nil, err
 	}
-	return plaintext,nil
+	return plaintext, nil
 }

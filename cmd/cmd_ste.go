@@ -13,9 +13,9 @@ import (
 	"github.com/urfave/cli"
 )
 
-var Steg = cli.Command{
-	Name:  "steg",
-	Usage: "Hide Secret Message inside an Image",
+var Ste = cli.Command{
+	Name:  "ste",
+	Usage: "Hide secret messages inside an image",
 	Subcommands: []cli.Command{
 		{
 			Name:    "hide",

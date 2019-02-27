@@ -14,7 +14,7 @@ import (
 
 var Rsa = cli.Command{
 	Name:  "rsa",
-	Usage: "Encrypt file using the RSA algorithm",
+	Usage: "RSA encryption and digital signature",
 	Subcommands: []cli.Command{
 		{
 			Name:    "enc",
@@ -80,7 +80,7 @@ func rsaEncAction(c *cli.Context) error {
 		}()
 	}
 	for wait {
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 3)
 		if len(limits) == 0 && files.IsEmpty() {
 			wait = false
 		}
@@ -108,7 +108,7 @@ func rsaDecAction(c *cli.Context) error {
 		}()
 	}
 	for wait {
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 3)
 		if len(limits) == 0 && files.IsEmpty() {
 			wait = false
 		}

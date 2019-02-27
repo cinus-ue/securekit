@@ -8,20 +8,20 @@ import (
 	"github.com/urfave/cli"
 )
 
-var Rename = cli.Command{
+var Ren = cli.Command{
 	Name:  "ren",
 	Usage: "Batch rename files and folders",
 	Subcommands: []cli.Command{
 		{
 			Name:    "enc",
 			Aliases: []string{"e"},
-			Usage:   "Rename files and folders using the AES-256-CTR",
+			Usage:   "Rename files and folders using the AES-256-GCM",
 			Action:  reEncAction,
 		},
 		{
 			Name:    "dec",
 			Aliases: []string{"d"},
-			Usage:   "Recover files and folders using the AES-256-CTR",
+			Usage:   "Recover files and folders using the AES-256-GCM",
 			Action:  reDecAction,
 		},
 	},

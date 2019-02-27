@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/cinus-ue/securekit-go/cmd"
+	"github.com/cinus-ue/securekit-go/util"
 	"github.com/urfave/cli"
 )
 
@@ -16,15 +16,15 @@ func main() {
 	app.Commands = []cli.Command{
 		cmd.Md5,
 		cmd.Sha,
-		cmd.Pass,
-		cmd.Rename,
-		cmd.Aes,
+		cmd.Pas,
+		cmd.Ren,
 		cmd.Rsa,
-		cmd.Text,
-		cmd.Steg,
+		cmd.Aes,
+		cmd.Msg,
+		cmd.Ste,
 	}
 	err := app.Run(os.Args)
 	if err != nil{
-		fmt.Printf("\n[*]ERROR:%s", err.Error())
+		util.CheckErr(err)
 	}
 }

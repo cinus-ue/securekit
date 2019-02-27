@@ -11,7 +11,7 @@ import (
 
 var Aes = cli.Command{
 	Name:  "aes",
-	Usage: "Encrypt file using the AES algorithm",
+	Usage: "Encrypt files using the AES algorithm",
 	Subcommands: []cli.Command{
 		{
 			Name:    "enc",
@@ -59,7 +59,7 @@ func aesEncAction(c *cli.Context) error {
 		}()
 	}
 	for wait {
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 3)
 		if len(limits) == 0 && files.IsEmpty() {
 			wait = false
 		}
@@ -88,7 +88,7 @@ func aesDecAction(c *cli.Context) error {
 		}()
 	}
 	for wait {
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 3)
 		if len(limits) == 0 && files.IsEmpty() {
 			wait = false
 		}

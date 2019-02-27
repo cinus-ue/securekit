@@ -9,8 +9,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-var Text = cli.Command{
-	Name:  "text",
+var Msg = cli.Command{
+	Name:  "msg",
 	Usage: "Encrypt messages using the AES algorithm",
 	Subcommands: []cli.Command{
 		{
@@ -36,7 +36,7 @@ func textEncAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("\n[*]Output Data->%s\n", base64.StdEncoding.EncodeToString(ciphertext))
+	fmt.Printf("\n[*]Output->%s\n", base64.StdEncoding.EncodeToString(ciphertext))
 	return nil
 }
 
@@ -48,6 +48,6 @@ func textDecAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("\n[*]Output Data->%s\n", plaintext)
+	fmt.Printf("\n[*]Output->%s\n", plaintext)
 	return nil
 }

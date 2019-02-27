@@ -1,11 +1,8 @@
 package kit
 
 import (
-	"crypto/aes"
-	"crypto/rand"
 	"encoding/base64"
 	"errors"
-	"io"
 	"os"
 	"path"
 	"strings"
@@ -19,7 +16,7 @@ func Rename(source string, password []byte) error {
 	if strings.Compare(suffix, REEXT) == 0 {
 		return nil
 	}
-	dk, _, err := deriveKey(password, []byte(password), 32)
+	dk, salt, err := deriveKey(password, nil, 32)
 	if err != nil {
 		return err
 	}
@@ -29,16 +26,14 @@ func Rename(source string, password []byte) error {
 		return err
 	}
 
-	plaintext := []byte(GetFileName(source))
-	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
-	iv := ciphertext[:aes.BlockSize]
-	_, err = io.ReadFull(rand.Reader, iv)
+	gcm, err := aesgcm(block)
 	if err != nil {
 		return err
 	}
 
-	stream := aesctr(block, iv[:])
-	stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
+	plaintext := []byte(GetFileName(source))
+	ciphertext := gcm.Seal(nil, salt, plaintext, nil)
+	ciphertext = append(ciphertext, salt...)
 
 	basePath := GetBasePath(source)
 	name := basePath + base64.URLEncoding.EncodeToString(ciphertext) + REEXT
@@ -62,8 +57,9 @@ func Recover(source string, password []byte) error {
 	if err != nil {
 		return err
 	}
+	salt := ciphertext[len(ciphertext)-12:]
 
-	dk, _, err := deriveKey(password, []byte(password), 32)
+	dk, _, err := deriveKey(password, salt, 32)
 	if err != nil {
 		return err
 	}
@@ -73,10 +69,14 @@ func Recover(source string, password []byte) error {
 		return err
 	}
 
-	iv := ciphertext[:aes.BlockSize]
-	stream := aesctr(block, iv)
-	var plaintext = []byte(ciphertext[aes.BlockSize:])
-	stream.XORKeyStream(plaintext, ciphertext[aes.BlockSize:])
+	gcm, err := aesgcm(block)
+	if err != nil {
+		return err
+	}
+	plaintext, err := gcm.Open(nil, salt, ciphertext[:len(ciphertext)-12], nil)
+	if err != nil {
+		return err
+	}
 
 	basePath := GetBasePath(source)
 	name := basePath + string(plaintext)

@@ -9,8 +9,8 @@ import (
 	"github.com/urfave/cli"
 	)
 
-var Pass = cli.Command{
-	Name:  "pass",
+var Pas = cli.Command{
+	Name:  "pas",
 	Usage: "Secure password generator",
 	Action: passAction,
 }
@@ -18,14 +18,14 @@ var Pass = cli.Command{
 
 func passAction(*cli.Context)error{
 	source := util.GetInput("Password Length:")
-	size, err := strconv.Atoi(source)
+	len, err := strconv.Atoi(source)
 	if err != nil {
 		return err
 	}
-	password,err :=pass.GenerateRandomString(size)
+	password,err :=pass.GenerateRandomString(len)
 	if err !=nil {
 		return err
 	}
-	fmt.Printf("Your new password is:%s\n",password[:size])
+	fmt.Printf("Your new password is:%s\n",password[:len])
 	return nil
 }
