@@ -18,16 +18,14 @@ var Ste = cli.Command{
 	Usage: "Hide secret messages inside an image",
 	Subcommands: []cli.Command{
 		{
-			Name:    "hide",
-			Aliases: []string{"h"},
-			Usage:   "Hide the data (file) inside an image",
-			Action:  hideAction,
+			Name:   "hide",
+			Usage:  "Hide the data (file) inside an image",
+			Action: hideAction,
 		},
 		{
-			Name:    "extract",
-			Aliases: []string{"e"},
-			Usage:   "Extract the data (file) from an image",
-			Action:  extractAction,
+			Name:   "extract",
+			Usage:  "Extract the data (file) from an image",
+			Action: extractAction,
 		},
 	},
 }

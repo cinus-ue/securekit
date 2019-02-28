@@ -6,6 +6,8 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"github.com/cinus-ue/securekit-go/kit/aes"
 )
 
 const REEXT = ".re"
@@ -16,24 +18,16 @@ func Rename(source string, password []byte) error {
 	if strings.Compare(suffix, REEXT) == 0 {
 		return nil
 	}
-	dk, salt, err := deriveKey(password, nil, 32)
-	if err != nil {
-		return err
-	}
-
-	block, err := aescipher(dk)
-	if err != nil {
-		return err
-	}
-
-	gcm, err := aesgcm(block)
+	dk, salt, err := aes.DeriveKey(password, nil, 32)
 	if err != nil {
 		return err
 	}
 
 	plaintext := []byte(GetFileName(source))
-	ciphertext := gcm.Seal(nil, salt, plaintext, nil)
-	ciphertext = append(ciphertext, salt...)
+	ciphertext, err := aes.AESGCMEnc(plaintext, dk, salt)
+	if err != nil {
+		return err
+	}
 
 	basePath := GetBasePath(source)
 	name := basePath + base64.URLEncoding.EncodeToString(ciphertext) + REEXT
@@ -59,21 +53,12 @@ func Recover(source string, password []byte) error {
 	}
 	salt := ciphertext[len(ciphertext)-12:]
 
-	dk, _, err := deriveKey(password, salt, 32)
+	dk, _, err := aes.DeriveKey(password, salt, 32)
 	if err != nil {
 		return err
 	}
 
-	block, err := aescipher(dk)
-	if err != nil {
-		return err
-	}
-
-	gcm, err := aesgcm(block)
-	if err != nil {
-		return err
-	}
-	plaintext, err := gcm.Open(nil, salt, ciphertext[:len(ciphertext)-12], nil)
+	plaintext, err := aes.AESGCMDec(ciphertext, dk, salt)
 	if err != nil {
 		return err
 	}

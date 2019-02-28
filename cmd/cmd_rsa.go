@@ -17,9 +17,8 @@ var Rsa = cli.Command{
 	Usage: "RSA encryption and digital signature",
 	Subcommands: []cli.Command{
 		{
-			Name:    "enc",
-			Aliases: []string{"e"},
-			Usage:   "Encrypt the data (file) using an RSA public key",
+			Name:  "enc",
+			Usage: "Encrypt the data (file) using an RSA public key",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
 					Name:  "del,d",
@@ -29,9 +28,8 @@ var Rsa = cli.Command{
 			Action: rsaEncAction,
 		},
 		{
-			Name:    "dec",
-			Aliases: []string{"d"},
-			Usage:   "Decrypt the data (file) using an RSA private key",
+			Name:  "dec",
+			Usage: "Decrypt the data (file) using an RSA private key",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
 					Name:  "del,d",
@@ -41,22 +39,19 @@ var Rsa = cli.Command{
 			Action: rsaDecAction,
 		},
 		{
-			Name:    "sig",
-			Aliases: []string{"s"},
-			Usage:   "Sign the data (file) and output the signed result",
-			Action:  rsaSignAction,
+			Name:   "sig",
+			Usage:  "Sign the data (file) and output the signed result",
+			Action: rsaSignAction,
 		},
 		{
-			Name:    "ver",
-			Aliases: []string{"v"},
-			Usage:   "Verify the signature using an RSA public key",
-			Action:  rsaVerifyAction,
+			Name:   "ver",
+			Usage:  "Verify the signature using an RSA public key",
+			Action: rsaVerifyAction,
 		},
 		{
-			Name:    "key",
-			Aliases: []string{"k"},
-			Usage:   "Generate RSA keys",
-			Action:  genKeyAction,
+			Name:   "key",
+			Usage:  "Generate RSA keys",
+			Action: genKeyAction,
 		},
 	},
 }

@@ -14,21 +14,19 @@ var Msg = cli.Command{
 	Usage: "Encrypt messages using the AES algorithm",
 	Subcommands: []cli.Command{
 		{
-			Name:    "enc",
-			Aliases: []string{"e"},
-			Usage:   "Encrypt the input data using AES-256-GCM",
-			Action:  textEncAction,
+			Name:   "enc",
+			Usage:  "Encrypt the input data using AES-256-GCM",
+			Action: msgEncAction,
 		},
 		{
-			Name:    "dec",
-			Aliases: []string{"d"},
-			Usage:   "Decrypt the input data using AES-256-GCM",
-			Action:  textDecAction,
+			Name:   "dec",
+			Usage:  "Decrypt the input data using AES-256-GCM",
+			Action: msgDecAction,
 		},
 	},
 }
 
-func textEncAction(*cli.Context) error {
+func msgEncAction(*cli.Context) error {
 	source := util.GetInput("Please enter a message:")
 	password := util.GetEncPassword()
 
@@ -40,7 +38,7 @@ func textEncAction(*cli.Context) error {
 	return nil
 }
 
-func textDecAction(*cli.Context) error {
+func msgDecAction(*cli.Context) error {
 	source := util.GetInput("Paste the encrypted text here to decrypt:")
 	password := util.GetDecPassword()
 

@@ -90,10 +90,10 @@ func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 }
 
 // RSA sign
-func RSASign(originData, privateKey []byte) (sig string,err error) {
+func RSASign(originData, privateKey []byte) (sig string, err error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
-        err = errors.New("private key error")
+		err = errors.New("private key error")
 		return
 	}
 	prk, err := x509.ParsePKCS1PrivateKey(block.Bytes)

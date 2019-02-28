@@ -1,23 +1,26 @@
 package pass
 
-import(
-	"crypto/rand"
-	"encoding/base64"
+import (
+	"math/rand"
+	"time"
 )
 
-
-func GenerateRandomBytes(n int) ([]byte, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
+func GenerateRandomString(digit, symbol bool, length int) string {
+	rand.Seed(time.Now().UnixNano())
+	charset := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	digits := "0123456789"
+	symbols := "~=+%^*/()[]{}/!@#$?|"
+	if digit {
+		charset = charset + digits
 	}
-	return b, nil
+	if symbol {
+		charset = charset + symbols
+	}
+
+	buf := make([]byte, length)
+	for i := 0; i < length; i++ {
+		buf[i] = charset[rand.Intn(len(charset))]
+	}
+
+	return string(buf)
 }
-
-
-func GenerateRandomString(s int) (string, error) {
-	b, err := GenerateRandomBytes(s)
-	return base64.URLEncoding.EncodeToString(b), err
-}
-

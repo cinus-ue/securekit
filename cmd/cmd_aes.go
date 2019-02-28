@@ -14,9 +14,8 @@ var Aes = cli.Command{
 	Usage: "Encrypt files using the AES algorithm",
 	Subcommands: []cli.Command{
 		{
-			Name:    "enc",
-			Aliases: []string{"e"},
-			Usage:   "Encrypt the input data using AES-256-CTR",
+			Name:  "enc",
+			Usage: "Encrypt the input data using AES-256-CTR",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
 					Name:  "del,d",
@@ -26,9 +25,8 @@ var Aes = cli.Command{
 			Action: aesEncAction,
 		},
 		{
-			Name:    "dec",
-			Aliases: []string{"d"},
-			Usage:   "Decrypt the input data using AES-256-CTR",
+			Name:  "dec",
+			Usage: "Decrypt the input data using AES-256-CTR",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
 					Name:  "del,d",

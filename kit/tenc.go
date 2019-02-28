@@ -1,24 +1,20 @@
 package kit
 
-import "encoding/base64"
+import (
+	"encoding/base64"
+	"github.com/cinus-ue/securekit-go/kit/aes"
+)
 
 func AESTextEnc(source string, pass []byte) ([]byte, error) {
-	dk, salt, err := deriveKey(pass, nil, 32)
+	dk, salt, err := aes.DeriveKey(pass, nil, 32)
 	if err != nil {
 		return nil, err
 	}
-	block, err := aescipher(dk)
-	if err != nil {
-		return nil, err
-	}
-	gcm, err := aesgcm(block)
-	if err != nil {
-		return nil, err
-	}
-	ciphertext := gcm.Seal(nil, salt, []byte(source), nil)
-	// Append the salt to the end of file
-	ciphertext = append(ciphertext, salt...)
 
+	ciphertext, err := aes.AESGCMEnc([]byte(source), dk, salt)
+	if err != nil {
+		return nil, err
+	}
 	return ciphertext, nil
 }
 
@@ -28,19 +24,11 @@ func AESTextDec(source string, pass []byte) ([]byte, error) {
 		return nil, err
 	}
 	salt := ciphertext[len(ciphertext)-12:]
-	dk, _, err := deriveKey(pass, salt, 32)
+	dk, _, err := aes.DeriveKey(pass, salt, 32)
 	if err != nil {
 		return nil, err
 	}
-	block, err := aescipher(dk)
-	if err != nil {
-		return nil, err
-	}
-	gcm, err := aesgcm(block)
-	if err != nil {
-		return nil, err
-	}
-	plaintext, err := gcm.Open(nil, salt, ciphertext[:len(ciphertext)-12], nil)
+	plaintext, err := aes.AESGCMDec(ciphertext, dk, salt)
 	if err != nil {
 		return nil, err
 	}
