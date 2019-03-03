@@ -44,31 +44,31 @@ func cheAction(c *cli.Context) error {
 				return err
 			}
 			fmt.Printf("[*]Md5-16->%s", hex.EncodeToString(ret32)[8:24])
-			fmt.Printf("\n[*]Md5-32->%s", hex.EncodeToString(ret32))
+			fmt.Printf("\n[*]Md5-32->%s\n", hex.EncodeToString(ret32))
 		case "2":
 			ret1, err := kit.Checksum(source, sha1.New())
 			if err != nil {
 				return err
 			}
-			fmt.Printf("[*]SHA1--->%s", hex.EncodeToString(ret1))
+			fmt.Printf("[*]SHA1->%s\n", hex.EncodeToString(ret1))
 		case "3":
 			ret256, err := kit.Checksum(source, sha256.New())
 			if err != nil {
 				return err
 			}
-			fmt.Printf("[*]SHA256->%s", hex.EncodeToString(ret256))
+			fmt.Printf("[*]SHA256->%s\n", hex.EncodeToString(ret256))
 		case "4":
 			ret384, err := kit.Checksum(source, sha512.New384())
 			if err != nil {
 				return err
 			}
-			fmt.Printf("[*]SHA384->%s", hex.EncodeToString(ret384))
+			fmt.Printf("[*]SHA384->%s\n", hex.EncodeToString(ret384))
 		case "5":
 			ret512, err := kit.Checksum(source, sha512.New())
 			if err != nil {
 				return err
 			}
-			fmt.Printf("[*]SHA512->%s", hex.EncodeToString(ret512))
+			fmt.Printf("[*]SHA512->%s\n", hex.EncodeToString(ret512))
 		}
 	default:
 		text := util.GetInput("Please enter a message:")

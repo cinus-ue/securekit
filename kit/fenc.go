@@ -20,10 +20,7 @@ const AES_VERSION = "AES-1"
 const RSA_VERSION = "RSA-1"
 const SALT_LEN = 12
 
-func AESFileEnc(source string, password []byte, delete bool, limits chan int) error {
-	defer func() {
-		<-limits
-	}()
+func AESFileEnc(source string, password []byte, delete bool) error {
 	suffix := path.Ext(source)
 	if strings.Compare(suffix, AES_EXT) == 0 {
 		return nil
@@ -56,10 +53,7 @@ func AESFileEnc(source string, password []byte, delete bool, limits chan int) er
 	return nil
 }
 
-func AESFileDec(source string, password []byte, delete bool, limits chan int) error {
-	defer func() {
-		<-limits
-	}()
+func AESFileDec(source string, password []byte, delete bool) error {
 	suffix := path.Ext(source)
 	if strings.Compare(suffix, AES_EXT) != 0 {
 		return nil
@@ -101,10 +95,7 @@ func AESFileDec(source string, password []byte, delete bool, limits chan int) er
 	return nil
 }
 
-func RSAFileEnc(source string, key string, delete bool, limits chan int) error {
-	defer func() {
-		<-limits
-	}()
+func RSAFileEnc(source string, key string, delete bool) error {
 	puk, err := ioutil.ReadFile(key)
 	if err != nil {
 		return err
@@ -157,10 +148,7 @@ func RSAFileEnc(source string, key string, delete bool, limits chan int) error {
 	return nil
 }
 
-func RSAFileDec(source string, key string, delete bool, limits chan int) error {
-	defer func() {
-		<-limits
-	}()
+func RSAFileDec(source string, key string, delete bool) error {
 	prk, err := ioutil.ReadFile(key)
 	if err != nil {
 		return err

@@ -51,7 +51,7 @@ var Rsa = cli.Command{
 		{
 			Name:   "key",
 			Usage:  "Generate RSA keys",
-			Action: genKeyAction,
+			Action: rsaKeyAction,
 		},
 	},
 }
@@ -68,10 +68,11 @@ func rsaEncAction(c *cli.Context) error {
 	for files.Len() > 0 {
 		limits <- 1
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s ", path.(string))
+		fmt.Printf("\n[*]processing file:%s", path.(string))
 		go func() {
-			err = kit.RSAFileEnc(path.(string), key, delete, limits)
+			err = kit.RSAFileEnc(path.(string), key, delete)
 			util.CheckErr(err)
+			<-limits
 		}()
 	}
 	for wait {
@@ -96,10 +97,11 @@ func rsaDecAction(c *cli.Context) error {
 	for files.Len() > 0 {
 		limits <- 1
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s ", path.(string))
+		fmt.Printf("\n[*]processing file:%s", path.(string))
 		go func() {
-			err = kit.RSAFileDec(path.(string), key, delete, limits)
+			err = kit.RSAFileDec(path.(string), key, delete)
 			util.CheckErr(err)
+			<-limits
 		}()
 	}
 	for wait {
@@ -150,7 +152,7 @@ func rsaVerifyAction(*cli.Context) error {
 	return nil
 }
 
-func genKeyAction(*cli.Context) error {
+func rsaKeyAction(*cli.Context) error {
 	source := util.GetInput("The key size is:")
 	size, err := strconv.Atoi(source)
 	if err != nil {

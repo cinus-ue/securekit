@@ -16,9 +16,10 @@ func main() {
 	app.Commands = []cli.Command{
 		cmd.Che,
 		cmd.Pas,
+		cmd.Wmk,
 		cmd.Ren,
-		cmd.Rsa,
 		cmd.Aes,
+		cmd.Rsa,
 		cmd.Msg,
 		cmd.Ste,
 	}

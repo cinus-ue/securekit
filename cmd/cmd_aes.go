@@ -50,10 +50,11 @@ func aesEncAction(c *cli.Context) error {
 	for files.Len() > 0 {
 		limits <- 1
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s ", path.(string))
+		fmt.Printf("\n[*]processing file:%s", path.(string))
 		go func() {
-			err = kit.AESFileEnc(path.(string), password, delete, limits)
+			err = kit.AESFileEnc(path.(string), password, delete)
 			util.CheckErr(err)
+			<-limits
 		}()
 	}
 	for wait {
@@ -79,10 +80,11 @@ func aesDecAction(c *cli.Context) error {
 	for files.Len() > 0 {
 		limits <- 1
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s ", path.(string))
+		fmt.Printf("\n[*]processing file:%s", path.(string))
 		go func() {
-			err = kit.AESFileDec(path.(string), password, delete, limits)
+			err = kit.AESFileDec(path.(string), password, delete)
 			util.CheckErr(err)
+			<-limits
 		}()
 	}
 	for wait {

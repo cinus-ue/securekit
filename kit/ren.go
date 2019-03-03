@@ -10,12 +10,12 @@ import (
 	"github.com/cinus-ue/securekit-go/kit/aes"
 )
 
-const REEXT = ".re"
-const MAXLEN = 240
+const RE_EXT = ".re"
+const MAX_LEN = 240
 
 func Rename(source string, password []byte) error {
 	suffix := path.Ext(source)
-	if strings.Compare(suffix, REEXT) == 0 {
+	if strings.Compare(suffix, RE_EXT) == 0 {
 		return nil
 	}
 	dk, salt, err := aes.DeriveKey(password, nil, 32)
@@ -30,8 +30,8 @@ func Rename(source string, password []byte) error {
 	}
 
 	basePath := GetBasePath(source)
-	name := basePath + base64.URLEncoding.EncodeToString(ciphertext) + REEXT
-	if len(name) > MAXLEN {
+	name := basePath + base64.URLEncoding.EncodeToString(ciphertext) + RE_EXT
+	if len(name) > MAX_LEN {
 		return errors.New("the file name is too long")
 	}
 
@@ -44,10 +44,10 @@ func Rename(source string, password []byte) error {
 
 func Recover(source string, password []byte) error {
 	suffix := path.Ext(source)
-	if strings.Compare(suffix, REEXT) != 0 {
+	if strings.Compare(suffix, RE_EXT) != 0 {
 		return nil
 	}
-	ciphertext, err := base64.URLEncoding.DecodeString(GetFileName(source[:len(source)-len(REEXT)]))
+	ciphertext, err := base64.URLEncoding.DecodeString(GetFileName(source[:len(source)-len(RE_EXT)]))
 	if err != nil {
 		return err
 	}
