@@ -20,17 +20,17 @@ var Ste = cli.Command{
 		{
 			Name:   "hide",
 			Usage:  "Hide the data (file) inside an image",
-			Action: hideAction,
+			Action: HideAction,
 		},
 		{
 			Name:   "extract",
 			Usage:  "Extract the data (file) from an image",
-			Action: extractAction,
+			Action: ExtractAction,
 		},
 	},
 }
 
-func hideAction(*cli.Context) error {
+func HideAction(*cli.Context) error {
 	imgPath := util.GetInput("Please enter the path of the cover image:")
 	msgPath := util.GetInput("Please enter the path of the message file:")
 
@@ -64,7 +64,7 @@ func hideAction(*cli.Context) error {
 	return nil
 }
 
-func extractAction(*cli.Context) error {
+func ExtractAction(*cli.Context) error {
 	source := util.GetInput("Please enter the path of the stego file:")
 
 	in, err := os.Open(source)
@@ -101,7 +101,7 @@ func extractAction(*cli.Context) error {
 	return nil
 }
 
-func assemble(msg []byte, msgFileName []byte) []byte {
+func assemble(msg []byte, fileName []byte) []byte {
 	// Format:
 	// [magic, 5b] [filename size, 1b] [message size, 8b] [filename] [message...]
 
@@ -110,7 +110,7 @@ func assemble(msg []byte, msgFileName []byte) []byte {
 	// the first version of the format.
 	magic := []byte{0xD0, 0x6E, 0xFA, 0xCE, 0x01} // D0 6E FA CE 01
 
-	msgNameSize := []byte{byte(len(msgFileName))}
+	msgNameSize := []byte{byte(len(fileName))}
 
 	// Message Size - Needed to correctly extract the message part
 	var tmpSize uint64 = uint64(len(msg))
@@ -120,7 +120,7 @@ func assemble(msg []byte, msgFileName []byte) []byte {
 	// Concatenate the different arrays to msgFull
 	msgHead0 := append(magic, msgNameSize...)
 	msgHead1 := append(msgHead0, msgSize...)
-	msgHeader := append(msgHead1, msgFileName...)
+	msgHeader := append(msgHead1, fileName...)
 	msgFull := append(msgHeader, msg...)
 
 	return msgFull

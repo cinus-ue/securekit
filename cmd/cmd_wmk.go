@@ -12,10 +12,10 @@ import (
 var Wmk = cli.Command{
 	Name:   "wmk",
 	Usage:  "Add a text watermark to an image",
-	Action: wmkAction,
+	Action: WmkAction,
 }
 
-func wmkAction(*cli.Context) error {
+func WmkAction(*cli.Context) error {
 	path := util.GetInput("Please enter the path of the image:")
 	text := util.GetInput("Please enter the watermark text:")
 	in, err := os.Open(path)

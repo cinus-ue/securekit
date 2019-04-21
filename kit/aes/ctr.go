@@ -20,7 +20,6 @@ const HMAC_SIZE = sha512.Size
 var ErrInvalidHMAC = errors.New("invalid HMAC")
 
 func AESCTREnc(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) {
-
 	iv := make([]byte, IV_SIZE)
 	_, err = rand.Read(iv)
 	if err != nil {
@@ -35,11 +34,8 @@ func AESCTREnc(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 	ctr := cipher.NewCTR(aes, iv)
 	hmac := hmac.New(sha512.New, keyHmac)
 
-	// Version
 	out.Write([]byte{V1})
-
 	w := io.MultiWriter(out, hmac)
-
 	w.Write(iv)
 
 	buf := make([]byte, BUFFER_SIZE)
@@ -66,8 +62,6 @@ func AESCTREnc(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 }
 
 func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) {
-
-	// Read version (up to 0-255)
 	var version int8
 	err = binary.Read(in, binary.LittleEndian, &version)
 	if err != nil {
@@ -103,9 +97,7 @@ func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 
 		limit = len(b) - HMAC_SIZE
 
-		// We reached the end
 		if err == io.EOF {
-
 			left := buf.Buffered()
 			if left < HMAC_SIZE {
 				return errors.New("not enough left")
@@ -120,8 +112,6 @@ func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 
 		h.Write(b[:limit])
 
-		// We always leave at least hmacSize bytes left in the buffer
-		// That way, our next Peek() might be EOF, but we will still have enough
 		outBuf := make([]byte, int64(limit))
 		buf.Read(b[:limit])
 		ctr.XORKeyStream(outBuf, b[:limit])

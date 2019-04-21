@@ -26,10 +26,10 @@ var Che = cli.Command{
 			Usage: "Generate hash (checksum) value for a file",
 		},
 	},
-	Action: cheAction,
+	Action: CheAction,
 }
 
-func cheAction(c *cli.Context) error {
+func CheAction(c *cli.Context) error {
 	var file = c.Bool("file")
 
 	switch {

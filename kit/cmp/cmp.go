@@ -6,7 +6,6 @@ import (
 	"io"
 )
 
-// compress the message
 func Compress(input []byte) []byte {
 	var buf bytes.Buffer
 	compr := zlib.NewWriter(&buf)
@@ -16,7 +15,6 @@ func Compress(input []byte) []byte {
 	return output
 }
 
-// decompress the message
 func Decompress(input []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	w := io.Writer(&buf)

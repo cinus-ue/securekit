@@ -15,17 +15,17 @@ var Ren = cli.Command{
 		{
 			Name:   "enc",
 			Usage:  "Rename files and folders using the AES-256-GCM",
-			Action: reEncAction,
+			Action: RenEncAction,
 		},
 		{
 			Name:   "dec",
 			Usage:  "Recover files and folders using the AES-256-GCM",
-			Action: reDecAction,
+			Action: RenDecAction,
 		},
 	},
 }
 
-func reEncAction(*cli.Context) error {
+func RenEncAction(*cli.Context) error {
 	source := util.GetInput("Please enter path to scan:")
 	files, err := kit.PathScan(source, false)
 	if err != nil {
@@ -35,7 +35,6 @@ func reEncAction(*cli.Context) error {
 	password := util.GetEncPassword()
 	for files.Len() > 0 {
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s", path.(string))
 		err = kit.Rename(path.(string), password)
 		if err != nil {
 			return err
@@ -45,7 +44,7 @@ func reEncAction(*cli.Context) error {
 	return nil
 }
 
-func reDecAction(*cli.Context) error {
+func RenDecAction(*cli.Context) error {
 	source := util.GetInput("Please enter path to scan:")
 	files, err := kit.PathScan(source, false)
 	if err != nil {
@@ -55,7 +54,6 @@ func reDecAction(*cli.Context) error {
 	password := util.GetDecPassword()
 	for files.Len() > 0 {
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s", path.(string))
 		err = kit.Recover(path.(string), password)
 		if err != nil {
 			return err

@@ -3,11 +3,10 @@ package kit
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
+	"github.com/cinus-ue/securekit-go/kit/aes"
 	"os"
 	"path"
-	"strings"
-
-	"github.com/cinus-ue/securekit-go/kit/aes"
 )
 
 const RE_EXT = ".re"
@@ -15,9 +14,10 @@ const MAX_LEN = 240
 
 func Rename(source string, password []byte) error {
 	suffix := path.Ext(source)
-	if strings.Compare(suffix, RE_EXT) == 0 {
+	if suffix == RE_EXT {
 		return nil
 	}
+	fmt.Printf("\n[*]processing file:%s", source)
 	dk, salt, err := aes.DeriveKey(password, nil, 32)
 	if err != nil {
 		return err
@@ -44,9 +44,10 @@ func Rename(source string, password []byte) error {
 
 func Recover(source string, password []byte) error {
 	suffix := path.Ext(source)
-	if strings.Compare(suffix, RE_EXT) != 0 {
+	if suffix != RE_EXT {
 		return nil
 	}
+	fmt.Printf("\n[*]processing file:%s", source)
 	ciphertext, err := base64.URLEncoding.DecodeString(GetFileName(source[:len(source)-len(RE_EXT)]))
 	if err != nil {
 		return err

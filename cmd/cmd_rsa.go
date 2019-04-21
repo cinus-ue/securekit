@@ -25,7 +25,7 @@ var Rsa = cli.Command{
 					Usage: "Delete source file",
 				},
 			},
-			Action: rsaEncAction,
+			Action: EncAction,
 		},
 		{
 			Name:  "dec",
@@ -36,27 +36,27 @@ var Rsa = cli.Command{
 					Usage: "Delete source file",
 				},
 			},
-			Action: rsaDecAction,
+			Action: DecAction,
 		},
 		{
 			Name:   "sig",
 			Usage:  "Sign the data (file) and output the signed result",
-			Action: rsaSignAction,
+			Action: SignAction,
 		},
 		{
 			Name:   "ver",
 			Usage:  "Verify the signature using an RSA public key",
-			Action: rsaVerifyAction,
+			Action: VerifyAction,
 		},
 		{
 			Name:   "key",
 			Usage:  "Generate RSA keys",
-			Action: rsaKeyAction,
+			Action: KeyAction,
 		},
 	},
 }
 
-func rsaEncAction(c *cli.Context) error {
+func EncAction(c *cli.Context) error {
 	var delete = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 	key := util.GetInput("Please enter the path of the public key:")
@@ -68,7 +68,6 @@ func rsaEncAction(c *cli.Context) error {
 	for files.Len() > 0 {
 		limits <- 1
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s", path.(string))
 		go func() {
 			err = kit.RSAFileEnc(path.(string), key, delete)
 			util.CheckErr(err)
@@ -76,7 +75,7 @@ func rsaEncAction(c *cli.Context) error {
 		}()
 	}
 	for wait {
-		time.Sleep(time.Second * 3)
+		time.Sleep(time.Second * T)
 		if len(limits) == 0 && files.IsEmpty() {
 			wait = false
 		}
@@ -85,7 +84,7 @@ func rsaEncAction(c *cli.Context) error {
 	return nil
 }
 
-func rsaDecAction(c *cli.Context) error {
+func DecAction(c *cli.Context) error {
 	var delete = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 	key := util.GetInput("Please enter the path of the private key:")
@@ -97,7 +96,6 @@ func rsaDecAction(c *cli.Context) error {
 	for files.Len() > 0 {
 		limits <- 1
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s", path.(string))
 		go func() {
 			err = kit.RSAFileDec(path.(string), key, delete)
 			util.CheckErr(err)
@@ -105,7 +103,7 @@ func rsaDecAction(c *cli.Context) error {
 		}()
 	}
 	for wait {
-		time.Sleep(time.Second * 3)
+		time.Sleep(time.Second * T)
 		if len(limits) == 0 && files.IsEmpty() {
 			wait = false
 		}
@@ -114,7 +112,7 @@ func rsaDecAction(c *cli.Context) error {
 	return nil
 }
 
-func rsaSignAction(*cli.Context) error {
+func SignAction(*cli.Context) error {
 	source := util.GetInput("Please enter the path of the source file:")
 	key := util.GetInput("Please enter the path of the private key:")
 
@@ -131,7 +129,7 @@ func rsaSignAction(*cli.Context) error {
 	return nil
 }
 
-func rsaVerifyAction(*cli.Context) error {
+func VerifyAction(*cli.Context) error {
 	source := util.GetInput("Please enter the path of the source file:")
 	key := util.GetInput("Please enter the path of the public key:")
 	signature := util.GetInput("Please enter the signature:")
@@ -152,7 +150,7 @@ func rsaVerifyAction(*cli.Context) error {
 	return nil
 }
 
-func rsaKeyAction(*cli.Context) error {
+func KeyAction(*cli.Context) error {
 	source := util.GetInput("The key size is:")
 	size, err := strconv.Atoi(source)
 	if err != nil {

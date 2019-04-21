@@ -22,7 +22,7 @@ var Aes = cli.Command{
 					Usage: "Delete source file",
 				},
 			},
-			Action: aesEncAction,
+			Action: AESEncAction,
 		},
 		{
 			Name:  "dec",
@@ -33,12 +33,12 @@ var Aes = cli.Command{
 					Usage: "Delete source file",
 				},
 			},
-			Action: aesDecAction,
+			Action: AESDecAction,
 		},
 	},
 }
 
-func aesEncAction(c *cli.Context) error {
+func AESEncAction(c *cli.Context) error {
 	var delete = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 
@@ -50,7 +50,6 @@ func aesEncAction(c *cli.Context) error {
 	for files.Len() > 0 {
 		limits <- 1
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s", path.(string))
 		go func() {
 			err = kit.AESFileEnc(path.(string), password, delete)
 			util.CheckErr(err)
@@ -58,7 +57,7 @@ func aesEncAction(c *cli.Context) error {
 		}()
 	}
 	for wait {
-		time.Sleep(time.Second * 3)
+		time.Sleep(time.Second * T)
 		if len(limits) == 0 && files.IsEmpty() {
 			wait = false
 		}
@@ -67,7 +66,7 @@ func aesEncAction(c *cli.Context) error {
 	return nil
 }
 
-func aesDecAction(c *cli.Context) error {
+func AESDecAction(c *cli.Context) error {
 	var delete = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 
@@ -80,7 +79,6 @@ func aesDecAction(c *cli.Context) error {
 	for files.Len() > 0 {
 		limits <- 1
 		path := files.Pop()
-		fmt.Printf("\n[*]processing file:%s", path.(string))
 		go func() {
 			err = kit.AESFileDec(path.(string), password, delete)
 			util.CheckErr(err)
@@ -88,7 +86,7 @@ func aesDecAction(c *cli.Context) error {
 		}()
 	}
 	for wait {
-		time.Sleep(time.Second * 3)
+		time.Sleep(time.Second * T)
 		if len(limits) == 0 && files.IsEmpty() {
 			wait = false
 		}

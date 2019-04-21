@@ -12,10 +12,10 @@ import (
 var Pas = cli.Command{
 	Name:   "pas",
 	Usage:  "Generate secure, random password",
-	Action: passAction,
+	Action: PassAction,
 }
 
-func passAction(*cli.Context) error {
+func PassAction(*cli.Context) error {
 	source := util.GetInput("Password Length:")
 	len, err := strconv.Atoi(source)
 	if err != nil {

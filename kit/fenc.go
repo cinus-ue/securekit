@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
-	"strings"
 
 	"github.com/cinus-ue/securekit-go/kit/aes"
 	"github.com/cinus-ue/securekit-go/kit/pass"
@@ -22,9 +22,10 @@ const SALT_LEN = 12
 
 func AESFileEnc(source string, password []byte, delete bool) error {
 	suffix := path.Ext(source)
-	if strings.Compare(suffix, AES_EXT) == 0 {
+	if suffix == AES_EXT {
 		return nil
 	}
+	fmt.Printf("\n[*]processing file:%s", source)
 	in, err := os.Open(source)
 	if err != nil {
 		return err
@@ -33,7 +34,10 @@ func AESFileEnc(source string, password []byte, delete bool) error {
 	if err != nil {
 		return err
 	}
-	out, err := os.Create(source + AES_EXT)
+
+	name := source + AES_EXT
+
+	out, err := os.Create(name)
 	if err != nil {
 		return err
 	}
@@ -43,7 +47,7 @@ func AESFileEnc(source string, password []byte, delete bool) error {
 	err = aes.AESCTREnc(in, out, dk, dk)
 	out.Close()
 	if err != nil {
-		os.Remove(source + AES_EXT)
+		os.Remove(name)
 		return err
 	}
 	in.Close()
@@ -55,10 +59,10 @@ func AESFileEnc(source string, password []byte, delete bool) error {
 
 func AESFileDec(source string, password []byte, delete bool) error {
 	suffix := path.Ext(source)
-	if strings.Compare(suffix, AES_EXT) != 0 {
+	if suffix != AES_EXT {
 		return nil
 	}
-
+	fmt.Printf("\n[*]processing file:%s", source)
 	in, err := os.Open(source)
 	if err != nil {
 		return err
@@ -66,7 +70,7 @@ func AESFileDec(source string, password []byte, delete bool) error {
 	version := make([]byte, len([]byte(AES_VERSION)))
 	in.Read(version)
 
-	if strings.Compare(string(version), AES_VERSION) != 0 {
+	if string(version) != AES_VERSION {
 		return errors.New("Inconsistent Versions:" + string(version))
 	}
 
@@ -78,14 +82,16 @@ func AESFileDec(source string, password []byte, delete bool) error {
 		return err
 	}
 
-	out, err := os.Create(source[:len(source)-len(AES_EXT)])
+	name := source[:len(source)-len(AES_EXT)]
+
+	out, err := os.Create(name)
 	if err != nil {
 		return err
 	}
 	err = aes.AESCTRDec(in, out, dk, dk)
 	out.Close()
 	if err != nil {
-		os.Remove(source[:len(source)-len(AES_EXT)])
+		os.Remove(name)
 		return err
 	}
 	in.Close()
@@ -101,9 +107,10 @@ func RSAFileEnc(source string, key string, delete bool) error {
 		return err
 	}
 	suffix := path.Ext(source)
-	if strings.Compare(suffix, RSA_EXT) == 0 {
+	if suffix == RSA_EXT {
 		return nil
 	}
+	fmt.Printf("\n[*]processing file:%s", source)
 	in, err := os.Open(source)
 	if err != nil {
 		return err
@@ -123,7 +130,9 @@ func RSAFileEnc(source string, key string, delete bool) error {
 		return err
 	}
 
-	out, err := os.Create(source + RSA_EXT)
+	name := source + RSA_EXT
+
+	out, err := os.Create(name)
 	if err != nil {
 		return err
 	}
@@ -138,7 +147,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 	err = aes.AESCTREnc(in, out, dk, dk)
 	out.Close()
 	if err != nil {
-		os.Remove(source + RSA_EXT)
+		os.Remove(name)
 		return err
 	}
 	in.Close()
@@ -154,9 +163,10 @@ func RSAFileDec(source string, key string, delete bool) error {
 		return err
 	}
 	suffix := path.Ext(source)
-	if strings.Compare(suffix, RSA_EXT) != 0 {
+	if suffix != RSA_EXT {
 		return nil
 	}
+	fmt.Printf("\n[*]processing file:%s", source)
 	in, err := os.Open(source)
 	if err != nil {
 		return err
@@ -164,7 +174,7 @@ func RSAFileDec(source string, key string, delete bool) error {
 	version := make([]byte, len([]byte(RSA_VERSION)))
 	in.Read(version)
 
-	if strings.Compare(string(version), RSA_VERSION) != 0 {
+	if string(version) != RSA_VERSION {
 		return errors.New("Inconsistent Versions:" + string(version))
 	}
 
@@ -188,14 +198,15 @@ func RSAFileDec(source string, key string, delete bool) error {
 		return err
 	}
 
-	out, err := os.Create(source[:len(source)-len(RSA_EXT)])
+	name := source[:len(source)-len(RSA_EXT)]
+	out, err := os.Create(name)
 	if err != nil {
 		return err
 	}
 	err = aes.AESCTRDec(in, out, dk, dk)
 	out.Close()
 	if err != nil {
-		os.Remove(source[:len(source)-len(RSA_EXT)])
+		os.Remove(name)
 		return err
 	}
 	in.Close()

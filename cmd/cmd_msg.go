@@ -16,21 +16,21 @@ var Msg = cli.Command{
 		{
 			Name:   "enc",
 			Usage:  "Encrypt the input data using AES-256-GCM",
-			Action: msgEncAction,
+			Action: MsgEncAction,
 		},
 		{
 			Name:   "dec",
 			Usage:  "Decrypt the input data using AES-256-GCM",
-			Action: msgDecAction,
+			Action: MsgDecAction,
 		},
 	},
 }
 
-func msgEncAction(*cli.Context) error {
+func MsgEncAction(*cli.Context) error {
 	source := util.GetInput("Please enter a message:")
 	password := util.GetEncPassword()
 
-	ciphertext, err := kit.AESTextEnc(source, password)
+	ciphertext, err := kit.AESTextEnc([]byte(source), password)
 	if err != nil {
 		return err
 	}
@@ -38,14 +38,20 @@ func msgEncAction(*cli.Context) error {
 	return nil
 }
 
-func msgDecAction(*cli.Context) error {
+func MsgDecAction(*cli.Context) error {
 	source := util.GetInput("Paste the encrypted text here to decrypt:")
 	password := util.GetDecPassword()
 
-	plaintext, err := kit.AESTextDec(source, password)
+	ciphertext, err := base64.StdEncoding.DecodeString(source)
 	if err != nil {
 		return err
 	}
+
+	plaintext, err := kit.AESTextDec(ciphertext, password)
+	if err != nil {
+		return err
+	}
+
 	fmt.Printf("\n[*]Output->%s\n", plaintext)
 	return nil
 }
