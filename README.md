@@ -1,6 +1,6 @@
 # SecureKit
 
-SecureKit is an easy to use encryption software that uses 256-bit encryption to protect your private files and prevent them from being modified, read or even theft. Protect all your sensitive personal and commercial information including your photos, Word docs, PDFs or any other private document.
+SecureKit is an easy to use encryption software that uses 256-bit encryption to protect your private files and prevent them from being modified, read or even accessed without the correct password.
 
 # Usage
 

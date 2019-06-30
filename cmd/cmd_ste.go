@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/cinus-ue/securekit-go/kit"
-	"github.com/cinus-ue/securekit-go/kit/img"
-	"github.com/cinus-ue/securekit-go/util"
+	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/kit/img"
+	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli"
 )
 

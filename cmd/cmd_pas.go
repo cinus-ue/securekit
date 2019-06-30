@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/cinus-ue/securekit-go/kit/pass"
-	"github.com/cinus-ue/securekit-go/util"
+	"github.com/cinus-ue/securekit/kit/pass"
+	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli"
 )
 

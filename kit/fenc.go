@@ -9,9 +9,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/cinus-ue/securekit-go/kit/aes"
-	"github.com/cinus-ue/securekit-go/kit/pass"
-	"github.com/cinus-ue/securekit-go/kit/rsa"
+	"github.com/cinus-ue/securekit/kit/aes"
+	"github.com/cinus-ue/securekit/kit/pass"
+	"github.com/cinus-ue/securekit/kit/rsa"
 )
 
 const AES_EXT = ".aes"

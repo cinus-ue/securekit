@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/cinus-ue/securekit-go/cmd"
-	"github.com/cinus-ue/securekit-go/util"
+	"github.com/cinus-ue/securekit/cmd"
+	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli"
 )
 

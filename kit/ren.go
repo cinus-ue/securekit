@@ -4,9 +4,10 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/cinus-ue/securekit-go/kit/aes"
 	"os"
 	"path"
+
+	"github.com/cinus-ue/securekit/kit/aes"
 )
 
 const RE_EXT = ".re"

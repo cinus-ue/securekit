@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/cinus-ue/securekit-go/kit"
-	"github.com/cinus-ue/securekit-go/kit/rsa"
-	"github.com/cinus-ue/securekit-go/util"
+	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/kit/rsa"
+	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli"
 )
 

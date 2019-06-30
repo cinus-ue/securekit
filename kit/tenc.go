@@ -1,7 +1,7 @@
 package kit
 
 import (
-	"github.com/cinus-ue/securekit-go/kit/aes"
+	"github.com/cinus-ue/securekit/kit/aes"
 )
 
 func AESTextEnc(plaintext, pass []byte) ([]byte, error) {

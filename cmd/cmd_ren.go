@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/cinus-ue/securekit-go/kit"
-	"github.com/cinus-ue/securekit-go/util"
+	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli"
 )
 
