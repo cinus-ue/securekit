@@ -10,16 +10,19 @@ import (
 	"github.com/cinus-ue/securekit/kit/aes"
 )
 
-const RE_EXT = ".re"
-const MAX_LEN = 240
+const (
+	RNM_VERSION = "SKT-RNM-V1"
+	MAX_LEN     = 240
+)
 
 func Rename(source string, password []byte) error {
 	suffix := path.Ext(source)
-	if suffix == RE_EXT {
+	if suffix == SKT_EXT {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
-	dk, salt, err := aes.DeriveKey(password, nil, 32)
+
+	dk, salt, err := aes.DeriveKey(password, nil, KEY_LEN)
 	if err != nil {
 		return err
 	}
@@ -30,8 +33,7 @@ func Rename(source string, password []byte) error {
 		return err
 	}
 
-	basePath := GetBasePath(source)
-	name := basePath + base64.URLEncoding.EncodeToString(ciphertext) + RE_EXT
+	name := GetBasePath(source) + RNM_VERSION + base64.URLEncoding.EncodeToString(ciphertext) + SKT_EXT
 	if len(name) > MAX_LEN {
 		return errors.New("the file name is too long")
 	}
@@ -45,17 +47,24 @@ func Rename(source string, password []byte) error {
 
 func Recover(source string, password []byte) error {
 	suffix := path.Ext(source)
-	if suffix != RE_EXT {
+	if suffix != SKT_EXT {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
-	ciphertext, err := base64.URLEncoding.DecodeString(GetFileName(source[:len(source)-len(RE_EXT)]))
+
+	name := GetFileName(source[:len(source)-len(SKT_EXT)])
+	version := name[:len(RNM_VERSION)]
+	if string(version) != RNM_VERSION {
+		return errors.New("Inconsistent Versions:" + string(version))
+	}
+
+	ciphertext, err := base64.URLEncoding.DecodeString(name[len(RNM_VERSION):])
 	if err != nil {
 		return err
 	}
-	salt := ciphertext[len(ciphertext)-12:]
 
-	dk, _, err := aes.DeriveKey(password, salt, 32)
+	salt := ciphertext[len(ciphertext)-SALT_LEN:]
+	dk, _, err := aes.DeriveKey(password, salt, KEY_LEN)
 	if err != nil {
 		return err
 	}
@@ -65,8 +74,7 @@ func Recover(source string, password []byte) error {
 		return err
 	}
 
-	basePath := GetBasePath(source)
-	name := basePath + string(plaintext)
+	name = GetBasePath(source) + string(plaintext)
 	err = os.Rename(source, name)
 	if err != nil {
 		return err

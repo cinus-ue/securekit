@@ -12,16 +12,16 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "securekit"
 	app.Usage = "Data security and protection toolkit"
-	app.Version = "1.1.5.20190405"
+	app.Version = "1.1.6.20200726"
 	app.Commands = []cli.Command{
-		cmd.Che,
-		cmd.Pas,
+		cmd.Ckm,
+		cmd.Pss,
 		cmd.Wmk,
-		cmd.Ren,
+		cmd.Rnm,
 		cmd.Aes,
 		cmd.Rsa,
 		cmd.Msg,
-		cmd.Ste,
+		cmd.Stg,
 	}
 	err := app.Run(os.Args)
 	if err != nil {

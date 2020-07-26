@@ -9,8 +9,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-var Pas = cli.Command{
-	Name:   "pas",
+var Pss = cli.Command{
+	Name:   "pss",
 	Usage:  "Generate secure, random password",
 	Action: PassAction,
 }

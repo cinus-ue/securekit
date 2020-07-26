@@ -13,8 +13,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-var Ste = cli.Command{
-	Name:  "ste",
+var Stg = cli.Command{
+	Name:  "stg",
 	Usage: "Hide secret messages inside an image",
 	Subcommands: []cli.Command{
 		{

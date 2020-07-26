@@ -14,15 +14,14 @@ import (
 	"github.com/cinus-ue/securekit/kit/rsa"
 )
 
-const AES_EXT = ".aes"
-const RSA_EXT = ".rsa"
-const AES_VERSION = "AES-1"
-const RSA_VERSION = "RSA-1"
-const SALT_LEN = 12
+const (
+	AES_VERSION = "SKT-AES-V1"
+	RSA_VERSION = "SKT-RSA-V1"
+)
 
 func AESFileEnc(source string, password []byte, delete bool) error {
 	suffix := path.Ext(source)
-	if suffix == AES_EXT {
+	if suffix == SKT_EXT {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
@@ -30,12 +29,12 @@ func AESFileEnc(source string, password []byte, delete bool) error {
 	if err != nil {
 		return err
 	}
-	dk, salt, err := aes.DeriveKey(password, nil, 32)
+	dk, salt, err := aes.DeriveKey(password, nil, KEY_LEN)
 	if err != nil {
 		return err
 	}
 
-	name := source + AES_EXT
+	name := source + SKT_EXT
 
 	out, err := os.Create(name)
 	if err != nil {
@@ -59,7 +58,7 @@ func AESFileEnc(source string, password []byte, delete bool) error {
 
 func AESFileDec(source string, password []byte, delete bool) error {
 	suffix := path.Ext(source)
-	if suffix != AES_EXT {
+	if suffix != SKT_EXT {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
@@ -77,12 +76,12 @@ func AESFileDec(source string, password []byte, delete bool) error {
 	salt := make([]byte, SALT_LEN)
 	in.Read(salt)
 
-	dk, _, err := aes.DeriveKey(password, salt, 32)
+	dk, _, err := aes.DeriveKey(password, salt, KEY_LEN)
 	if err != nil {
 		return err
 	}
 
-	name := source[:len(source)-len(AES_EXT)]
+	name := source[:len(source)-len(SKT_EXT)]
 
 	out, err := os.Create(name)
 	if err != nil {
@@ -107,7 +106,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 		return err
 	}
 	suffix := path.Ext(source)
-	if suffix == RSA_EXT {
+	if suffix == SKT_EXT {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
@@ -120,7 +119,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 		return err
 	}
 
-	dk, salt, err := aes.DeriveKey(password, nil, 32)
+	dk, salt, err := aes.DeriveKey(password, nil, KEY_LEN)
 	if err != nil {
 		return err
 	}
@@ -130,7 +129,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 		return err
 	}
 
-	name := source + RSA_EXT
+	name := source + SKT_EXT
 
 	out, err := os.Create(name)
 	if err != nil {
@@ -138,7 +137,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 	}
 	out.WriteString(RSA_VERSION)
 	var pSize = uint64(len(pass))
-	size := make([]byte, 8)
+	size := make([]byte, PSIZE_LEN)
 	binary.BigEndian.PutUint64(size, uint64(pSize))
 	out.Write(size)
 	out.Write(pass)
@@ -163,7 +162,7 @@ func RSAFileDec(source string, key string, delete bool) error {
 		return err
 	}
 	suffix := path.Ext(source)
-	if suffix != RSA_EXT {
+	if suffix != SKT_EXT {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
@@ -178,7 +177,7 @@ func RSAFileDec(source string, key string, delete bool) error {
 		return errors.New("Inconsistent Versions:" + string(version))
 	}
 
-	size := make([]byte, 8)
+	size := make([]byte, PSIZE_LEN)
 	in.Read(size)
 	buf := bytes.NewBuffer(size)
 	var pSize uint64
@@ -193,12 +192,12 @@ func RSAFileDec(source string, key string, delete bool) error {
 	if err != nil {
 		return err
 	}
-	dk, _, err := aes.DeriveKey(password, salt, 32)
+	dk, _, err := aes.DeriveKey(password, salt, KEY_LEN)
 	if err != nil {
 		return err
 	}
 
-	name := source[:len(source)-len(RSA_EXT)]
+	name := source[:len(source)-len(SKT_EXT)]
 	out, err := os.Create(name)
 	if err != nil {
 		return err

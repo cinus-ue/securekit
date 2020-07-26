@@ -56,11 +56,8 @@ func AESEncAction(c *cli.Context) error {
 			<-limits
 		}()
 	}
-	for wait {
-		time.Sleep(time.Second * T)
-		if len(limits) == 0 && files.IsEmpty() {
-			wait = false
-		}
+	for len(limits) != 0 || !files.IsEmpty() {
+		time.Sleep(time.Millisecond * T)
 	}
 	fmt.Print("\n[*]Operation Completed\n")
 	return nil
@@ -85,11 +82,8 @@ func AESDecAction(c *cli.Context) error {
 			<-limits
 		}()
 	}
-	for wait {
-		time.Sleep(time.Second * T)
-		if len(limits) == 0 && files.IsEmpty() {
-			wait = false
-		}
+	for len(limits) != 0 || !files.IsEmpty() {
+		time.Sleep(time.Millisecond * T)
 	}
 	fmt.Print("\n[*]Operation Completed\n")
 	return nil

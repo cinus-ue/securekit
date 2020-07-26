@@ -39,12 +39,12 @@ var Rsa = cli.Command{
 			Action: DecAction,
 		},
 		{
-			Name:   "sig",
+			Name:   "sgt",
 			Usage:  "Sign the data (file) and output the signed result",
 			Action: SignAction,
 		},
 		{
-			Name:   "ver",
+			Name:   "vfy",
 			Usage:  "Verify the signature using an RSA public key",
 			Action: VerifyAction,
 		},
@@ -74,11 +74,8 @@ func EncAction(c *cli.Context) error {
 			<-limits
 		}()
 	}
-	for wait {
-		time.Sleep(time.Second * T)
-		if len(limits) == 0 && files.IsEmpty() {
-			wait = false
-		}
+	for len(limits) != 0 || !files.IsEmpty() {
+		time.Sleep(time.Millisecond * T)
 	}
 	fmt.Print("\n[*]Operation Completed\n")
 	return nil
@@ -102,11 +99,8 @@ func DecAction(c *cli.Context) error {
 			<-limits
 		}()
 	}
-	for wait {
-		time.Sleep(time.Second * T)
-		if len(limits) == 0 && files.IsEmpty() {
-			wait = false
-		}
+	for len(limits) != 0 || !files.IsEmpty() {
+		time.Sleep(time.Millisecond * T)
 	}
 	fmt.Print("\n[*]Operation Completed\n")
 	return nil

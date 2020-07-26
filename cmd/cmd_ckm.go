@@ -13,8 +13,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-var Che = cli.Command{
-	Name:  "che",
+var Ckm = cli.Command{
+	Name:  "ckm",
 	Usage: "MD5 & SHA checksum utility",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
@@ -26,10 +26,10 @@ var Che = cli.Command{
 			Usage: "Generate hash (checksum) value for a file",
 		},
 	},
-	Action: CheAction,
+	Action: CkmAction,
 }
 
-func CheAction(c *cli.Context) error {
+func CkmAction(c *cli.Context) error {
 	var file = c.Bool("file")
 
 	switch {

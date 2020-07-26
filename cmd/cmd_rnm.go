@@ -8,24 +8,24 @@ import (
 	"github.com/urfave/cli"
 )
 
-var Ren = cli.Command{
-	Name:  "ren",
+var Rnm = cli.Command{
+	Name:  "rnm",
 	Usage: "Batch rename files and folders",
 	Subcommands: []cli.Command{
 		{
 			Name:   "enc",
 			Usage:  "Rename files and folders using the AES-256-GCM",
-			Action: RenEncAction,
+			Action: RnmEncAction,
 		},
 		{
 			Name:   "dec",
 			Usage:  "Recover files and folders using the AES-256-GCM",
-			Action: RenDecAction,
+			Action: RnmDecAction,
 		},
 	},
 }
 
-func RenEncAction(*cli.Context) error {
+func RnmEncAction(*cli.Context) error {
 	source := util.GetInput("Please enter path to scan:")
 	files, err := kit.PathScan(source, false)
 	if err != nil {
@@ -44,7 +44,7 @@ func RenEncAction(*cli.Context) error {
 	return nil
 }
 
-func RenDecAction(*cli.Context) error {
+func RnmDecAction(*cli.Context) error {
 	source := util.GetInput("Please enter path to scan:")
 	files, err := kit.PathScan(source, false)
 	if err != nil {

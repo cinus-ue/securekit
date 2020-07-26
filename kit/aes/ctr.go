@@ -12,10 +12,12 @@ import (
 	"io"
 )
 
-const BUFFER_SIZE int = 16 * 1024
-const IV_SIZE int = 16
-const V1 byte = 0x1
-const HMAC_SIZE = sha512.Size
+const (
+	BUFFER_SIZE int  = 16 * 1024
+	IV_SIZE     int  = 16
+	V1          byte = 0x1
+	HMAC_SIZE        = sha512.Size
+)
 
 var ErrInvalidHMAC = errors.New("invalid HMAC")
 
@@ -65,18 +67,18 @@ func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 	var version int8
 	err = binary.Read(in, binary.LittleEndian, &version)
 	if err != nil {
-		return
+		return err
 	}
 
 	iv := make([]byte, IV_SIZE)
 	_, err = io.ReadFull(in, iv)
 	if err != nil {
-		return
+		return err
 	}
 
 	aes, err := aes.NewCipher(keyAes)
 	if err != nil {
-		return
+		return err
 	}
 
 	ctr := cipher.NewCTR(aes, iv)
@@ -92,7 +94,7 @@ func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 	for {
 		b, err = buf.Peek(BUFFER_SIZE)
 		if err != nil && err != io.EOF {
-			return
+			return err
 		}
 
 		limit = len(b) - HMAC_SIZE
@@ -122,7 +124,7 @@ func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 		}
 
 		if err != nil {
-			return
+			return err
 		}
 	}
 

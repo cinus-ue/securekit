@@ -4,8 +4,8 @@ import (
 	"github.com/cinus-ue/securekit/kit/aes"
 )
 
-func AESTextEnc(plaintext, pass []byte) ([]byte, error) {
-	dk, salt, err := aes.DeriveKey(pass, nil, 32)
+func AESTextEnc(plaintext, password []byte) ([]byte, error) {
+	dk, salt, err := aes.DeriveKey(password, nil, KEY_LEN)
 	if err != nil {
 		return nil, err
 	}
@@ -17,9 +17,9 @@ func AESTextEnc(plaintext, pass []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func AESTextDec(ciphertext, pass []byte) ([]byte, error) {
-	salt := ciphertext[len(ciphertext)-12:]
-	dk, _, err := aes.DeriveKey(pass, salt, 32)
+func AESTextDec(ciphertext, password []byte) ([]byte, error) {
+	salt := ciphertext[len(ciphertext)-SALT_LEN:]
+	dk, _, err := aes.DeriveKey(password, salt, KEY_LEN)
 	if err != nil {
 		return nil, err
 	}
