@@ -10,13 +10,13 @@ import (
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/kit/img"
 	"github.com/cinus-ue/securekit/util"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var Stg = cli.Command{
+var Stg = &cli.Command{
 	Name:  "stg",
 	Usage: "Hide secret messages inside an image",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Name:   "hide",
 			Usage:  "Hide the data (file) inside an image",
@@ -113,9 +113,9 @@ func assemble(msg []byte, fileName []byte) []byte {
 	msgNameSize := []byte{byte(len(fileName))}
 
 	// Message Size - Needed to correctly extract the message part
-	var tmpSize uint64 = uint64(len(msg))
+	var tmpSize = uint64(len(msg))
 	msgSize := make([]byte, 8)
-	binary.BigEndian.PutUint64(msgSize, uint64(tmpSize))
+	binary.BigEndian.PutUint64(msgSize, tmpSize)
 
 	// Concatenate the different arrays to msgFull
 	msgHead0 := append(magic, msgNameSize...)

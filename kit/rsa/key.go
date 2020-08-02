@@ -75,7 +75,7 @@ func SaveRSAKey(privateKey *rsa.PrivateKey) error {
 
 // Decode Key
 func DecodePrivateKey(key []byte) (*rsa.PrivateKey, error) {
-	block, _ := pem.Decode([]byte(key))
+	block, _ := pem.Decode(key)
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	return privateKey, err
 }

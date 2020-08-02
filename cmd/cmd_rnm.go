@@ -5,13 +5,13 @@ import (
 
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/util"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var Rnm = cli.Command{
+var Rnm = &cli.Command{
 	Name:  "rnm",
 	Usage: "Batch rename files and folders",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Name:   "enc",
 			Usage:  "Rename files and folders using the AES-256-GCM",

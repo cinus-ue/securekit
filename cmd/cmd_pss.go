@@ -6,25 +6,25 @@ import (
 
 	"github.com/cinus-ue/securekit/kit/pass"
 	"github.com/cinus-ue/securekit/util"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var Pss = cli.Command{
+var Pss = &cli.Command{
 	Name:   "pss",
 	Usage:  "Generate secure, random password",
 	Action: PassAction,
 }
 
 func PassAction(*cli.Context) error {
-	source := util.GetInput("Password Length:")
-	len, err := strconv.Atoi(source)
+	val := util.GetInput("Password Length:")
+	length, err := strconv.Atoi(val)
 	if err != nil {
 		return err
 	}
-	password, err := pass.GenerateRandomPass(len)
+	password, err := pass.GenerateRandomPass(length)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Your new password is:%s\n", password[:len])
+	fmt.Printf("Your new password is:%s\n", password[:length])
 	return nil
 }

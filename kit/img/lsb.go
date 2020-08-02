@@ -38,7 +38,7 @@ func getBits(data []byte) []bool {
 	bs := make([]byte, 4)
 	binary.LittleEndian.PutUint32(bs, uint32(len(data)))
 	data = append(bs, data...)
-	results := []bool{}
+	var results []bool
 	for _, b := range data {
 		results = append(results, convertByteToBits(b)...)
 	}
@@ -78,7 +78,7 @@ func LSBEncoder(w io.Writer, r io.Reader, payload []byte) error {
 				b8 = setBit(b, data[dataIdx])
 				dataIdx++
 			}
-			cimg.Set(x, y, color.RGBA{r8, g8, b8, a8})
+			cimg.Set(x, y, color.RGBA{R: r8, G: g8, B: b8, A: a8})
 		}
 	}
 	return png.Encode(w, cimg)
@@ -86,7 +86,7 @@ func LSBEncoder(w io.Writer, r io.Reader, payload []byte) error {
 
 // assemble takes the LSB data from a payload and reconstructes the original message
 func assemble(data []uint8) []byte {
-	result := []byte{}
+	var result []byte
 	length := len(data)
 	for i := 0; i < len(data)/8; i++ {
 		b := uint8(0)
@@ -95,7 +95,7 @@ func assemble(data []uint8) []byte {
 				b = b<<1 + data[i*8+j]
 			}
 		}
-		result = append(result, byte(b))
+		result = append(result, b)
 	}
 	payloadSize := binary.LittleEndian.Uint32(result[0:4])
 	return result[4 : payloadSize+4]
@@ -109,7 +109,7 @@ func LSBDecoder(r io.Reader) ([]byte, error) {
 	}
 	bounds := img.Bounds()
 
-	data := []uint8{}
+	var data []uint8
 	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
 			r, g, b, _ := img.At(x, y).RGBA()
@@ -119,8 +119,5 @@ func LSBDecoder(r io.Reader) ([]byte, error) {
 		}
 	}
 	payload := assemble(data)
-	if err != nil {
-		return nil, err
-	}
 	return payload, nil
 }

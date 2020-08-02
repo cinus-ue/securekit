@@ -6,13 +6,13 @@ import (
 
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/util"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var Msg = cli.Command{
+var Msg = &cli.Command{
 	Name:  "msg",
 	Usage: "Encrypt messages using the AES algorithm",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Name:   "enc",
 			Usage:  "Encrypt the input data using AES-256-GCM",

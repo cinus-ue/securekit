@@ -9,13 +9,13 @@ import (
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/kit/rsa"
 	"github.com/cinus-ue/securekit/util"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var Rsa = cli.Command{
+var Rsa = &cli.Command{
 	Name:  "rsa",
 	Usage: "RSA encryption and digital signature",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Name:  "enc",
 			Usage: "Encrypt the data (file) using an RSA public key",
@@ -57,7 +57,7 @@ var Rsa = cli.Command{
 }
 
 func EncAction(c *cli.Context) error {
-	var delete = c.Bool("del")
+	var del = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 	key := util.GetInput("Please enter the path of the public key:")
 
@@ -69,7 +69,7 @@ func EncAction(c *cli.Context) error {
 		limits <- 1
 		path := files.Pop()
 		go func() {
-			err = kit.RSAFileEnc(path.(string), key, delete)
+			err = kit.RSAFileEnc(path.(string), key, del)
 			util.CheckErr(err)
 			<-limits
 		}()
@@ -82,7 +82,7 @@ func EncAction(c *cli.Context) error {
 }
 
 func DecAction(c *cli.Context) error {
-	var delete = c.Bool("del")
+	var del = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 	key := util.GetInput("Please enter the path of the private key:")
 
@@ -94,7 +94,7 @@ func DecAction(c *cli.Context) error {
 		limits <- 1
 		path := files.Pop()
 		go func() {
-			err = kit.RSAFileDec(path.(string), key, delete)
+			err = kit.RSAFileDec(path.(string), key, del)
 			util.CheckErr(err)
 			<-limits
 		}()
@@ -145,8 +145,8 @@ func VerifyAction(*cli.Context) error {
 }
 
 func KeyAction(*cli.Context) error {
-	source := util.GetInput("The key size is:")
-	size, err := strconv.Atoi(source)
+	val := util.GetInput("The key size is:")
+	size, err := strconv.Atoi(val)
 	if err != nil {
 		return err
 	}

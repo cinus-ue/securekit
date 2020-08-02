@@ -51,7 +51,7 @@ func GetBasePath(path string) string {
 	} else {
 		i = strings.LastIndex(path, "/")
 	}
-	path = string(path[0 : i+1])
+	path = path[0 : i+1]
 	return path
 }
 

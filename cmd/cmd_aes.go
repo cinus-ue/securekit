@@ -6,13 +6,13 @@ import (
 
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/util"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
-var Aes = cli.Command{
+var Aes = &cli.Command{
 	Name:  "aes",
 	Usage: "Encrypt files using the AES algorithm",
-	Subcommands: []cli.Command{
+	Subcommands: []*cli.Command{
 		{
 			Name:  "enc",
 			Usage: "Encrypt the input data using AES-256-CTR",
@@ -39,7 +39,7 @@ var Aes = cli.Command{
 }
 
 func AESEncAction(c *cli.Context) error {
-	var delete = c.Bool("del")
+	var del = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 
 	files, err := kit.PathScan(source, true)
@@ -51,7 +51,7 @@ func AESEncAction(c *cli.Context) error {
 		limits <- 1
 		path := files.Pop()
 		go func() {
-			err = kit.AESFileEnc(path.(string), password, delete)
+			err = kit.AESFileEnc(path.(string), password, del)
 			util.CheckErr(err)
 			<-limits
 		}()
@@ -64,7 +64,7 @@ func AESEncAction(c *cli.Context) error {
 }
 
 func AESDecAction(c *cli.Context) error {
-	var delete = c.Bool("del")
+	var del = c.Bool("del")
 	source := util.GetInput("Please enter path to scan:")
 
 	files, err := kit.PathScan(source, true)
@@ -77,7 +77,7 @@ func AESDecAction(c *cli.Context) error {
 		limits <- 1
 		path := files.Pop()
 		go func() {
-			err = kit.AESFileDec(path.(string), password, delete)
+			err = kit.AESFileDec(path.(string), password, del)
 			util.CheckErr(err)
 			<-limits
 		}()

@@ -13,34 +13,34 @@ import (
 )
 
 const (
-	BUFFER_SIZE int  = 16 * 1024
-	IV_SIZE     int  = 16
-	V1          byte = 0x1
-	HMAC_SIZE        = sha512.Size
+	BufferSize int  = 16 * 1024
+	IvSize     int  = 16
+	V1         byte = 0x1
+	HmacSize        = sha512.Size
 )
 
 var ErrInvalidHMAC = errors.New("invalid HMAC")
 
 func AESCTREnc(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) {
-	iv := make([]byte, IV_SIZE)
+	iv := make([]byte, IvSize)
 	_, err = rand.Read(iv)
 	if err != nil {
 		return err
 	}
 
-	aes, err := aes.NewCipher(keyAes)
+	cphr, err := aes.NewCipher(keyAes)
 	if err != nil {
 		return err
 	}
 
-	ctr := cipher.NewCTR(aes, iv)
-	hmac := hmac.New(sha512.New, keyHmac)
+	ctr := cipher.NewCTR(cphr, iv)
+	hc := hmac.New(sha512.New, keyHmac)
 
 	out.Write([]byte{V1})
-	w := io.MultiWriter(out, hmac)
+	w := io.MultiWriter(out, hc)
 	w.Write(iv)
 
-	buf := make([]byte, BUFFER_SIZE)
+	buf := make([]byte, BufferSize)
 	for {
 		n, err := in.Read(buf)
 		if err != nil && err != io.EOF {
@@ -58,56 +58,56 @@ func AESCTREnc(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 		}
 	}
 
-	out.Write(hmac.Sum(nil))
+	out.Write(hc.Sum(nil))
 
 	return nil
 }
 
 func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) {
 	var version int8
-	err = binary.Read(in, binary.LittleEndian, &version)
+	err = binary.Read(in, binary.BigEndian, &version)
 	if err != nil {
 		return err
 	}
 
-	iv := make([]byte, IV_SIZE)
+	iv := make([]byte, IvSize)
 	_, err = io.ReadFull(in, iv)
 	if err != nil {
 		return err
 	}
 
-	aes, err := aes.NewCipher(keyAes)
+	cphr, err := aes.NewCipher(keyAes)
 	if err != nil {
 		return err
 	}
 
-	ctr := cipher.NewCTR(aes, iv)
+	ctr := cipher.NewCTR(cphr, iv)
 	h := hmac.New(sha512.New, keyHmac)
 	h.Write(iv)
-	mac := make([]byte, HMAC_SIZE)
+	mac := make([]byte, HmacSize)
 
 	w := out
 
-	buf := bufio.NewReaderSize(in, BUFFER_SIZE)
+	buf := bufio.NewReaderSize(in, BufferSize)
 	var limit int
 	var b []byte
 	for {
-		b, err = buf.Peek(BUFFER_SIZE)
+		b, err = buf.Peek(BufferSize)
 		if err != nil && err != io.EOF {
 			return err
 		}
 
-		limit = len(b) - HMAC_SIZE
+		limit = len(b) - HmacSize
 
 		if err == io.EOF {
 			left := buf.Buffered()
-			if left < HMAC_SIZE {
+			if left < HmacSize {
 				return errors.New("not enough left")
 			}
 
-			copy(mac, b[left-HMAC_SIZE:left])
+			copy(mac, b[left-HmacSize:left])
 
-			if left == HMAC_SIZE {
+			if left == HmacSize {
 				break
 			}
 		}

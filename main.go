@@ -5,16 +5,16 @@ import (
 
 	"github.com/cinus-ue/securekit/cmd"
 	"github.com/cinus-ue/securekit/util"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "securekit"
 	app.Usage = "Data security and protection toolkit"
-	app.Version = "1.1.6.20200726"
-	app.Commands = []cli.Command{
-		cmd.Ckm,
+	app.Version = "1.1.7.20200802"
+	app.Commands = []*cli.Command{
+		cmd.Cks,
 		cmd.Pss,
 		cmd.Wmk,
 		cmd.Rnm,

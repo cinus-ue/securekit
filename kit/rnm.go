@@ -11,18 +11,18 @@ import (
 )
 
 const (
-	RNM_VERSION = "SKT-RNM-V1"
-	MAX_LEN     = 240
+	RnmVersion = "SKT-RNM-V1"
+	MaxLen     = 240
 )
 
 func Rename(source string, password []byte) error {
 	suffix := path.Ext(source)
-	if suffix == SKT_EXT {
+	if suffix == SktExt {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
 
-	dk, salt, err := aes.DeriveKey(password, nil, KEY_LEN)
+	dk, salt, err := aes.DeriveKey(password, nil, KeyLen)
 	if err != nil {
 		return err
 	}
@@ -33,8 +33,8 @@ func Rename(source string, password []byte) error {
 		return err
 	}
 
-	name := GetBasePath(source) + RNM_VERSION + base64.URLEncoding.EncodeToString(ciphertext) + SKT_EXT
-	if len(name) > MAX_LEN {
+	name := GetBasePath(source) + RnmVersion + base64.URLEncoding.EncodeToString(ciphertext) + SktExt
+	if len(name) > MaxLen {
 		return errors.New("the file name is too long")
 	}
 
@@ -47,24 +47,24 @@ func Rename(source string, password []byte) error {
 
 func Recover(source string, password []byte) error {
 	suffix := path.Ext(source)
-	if suffix != SKT_EXT {
+	if suffix != SktExt {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
 
-	name := GetFileName(source[:len(source)-len(SKT_EXT)])
-	version := name[:len(RNM_VERSION)]
-	if string(version) != RNM_VERSION {
-		return errors.New("Inconsistent Versions:" + string(version))
+	name := GetFileName(source[:len(source)-len(SktExt)])
+	version := name[:len(RnmVersion)]
+	if version != RnmVersion {
+		return errors.New("Inconsistent Versions:" + version)
 	}
 
-	ciphertext, err := base64.URLEncoding.DecodeString(name[len(RNM_VERSION):])
+	ciphertext, err := base64.URLEncoding.DecodeString(name[len(RnmVersion):])
 	if err != nil {
 		return err
 	}
 
-	salt := ciphertext[len(ciphertext)-SALT_LEN:]
-	dk, _, err := aes.DeriveKey(password, salt, KEY_LEN)
+	salt := ciphertext[len(ciphertext)-SaltLen:]
+	dk, _, err := aes.DeriveKey(password, salt, KeyLen)
 	if err != nil {
 		return err
 	}

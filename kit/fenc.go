@@ -15,13 +15,13 @@ import (
 )
 
 const (
-	AES_VERSION = "SKT-AES-V1"
-	RSA_VERSION = "SKT-RSA-V1"
+	AesVersion = "SKT-AES-V1"
+	RsaVersion = "SKT-RSA-V1"
 )
 
 func AESFileEnc(source string, password []byte, delete bool) error {
 	suffix := path.Ext(source)
-	if suffix == SKT_EXT {
+	if suffix == SktExt {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
@@ -29,18 +29,18 @@ func AESFileEnc(source string, password []byte, delete bool) error {
 	if err != nil {
 		return err
 	}
-	dk, salt, err := aes.DeriveKey(password, nil, KEY_LEN)
+	dk, salt, err := aes.DeriveKey(password, nil, KeyLen)
 	if err != nil {
 		return err
 	}
 
-	name := source + SKT_EXT
+	name := source + SktExt
 
 	out, err := os.Create(name)
 	if err != nil {
 		return err
 	}
-	out.WriteString(AES_VERSION)
+	out.WriteString(AesVersion)
 	out.Write(salt)
 
 	err = aes.AESCTREnc(in, out, dk, dk)
@@ -58,7 +58,7 @@ func AESFileEnc(source string, password []byte, delete bool) error {
 
 func AESFileDec(source string, password []byte, delete bool) error {
 	suffix := path.Ext(source)
-	if suffix != SKT_EXT {
+	if suffix != SktExt {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
@@ -66,22 +66,22 @@ func AESFileDec(source string, password []byte, delete bool) error {
 	if err != nil {
 		return err
 	}
-	version := make([]byte, len([]byte(AES_VERSION)))
+	version := make([]byte, len([]byte(AesVersion)))
 	in.Read(version)
 
-	if string(version) != AES_VERSION {
+	if string(version) != AesVersion {
 		return errors.New("Inconsistent Versions:" + string(version))
 	}
 
-	salt := make([]byte, SALT_LEN)
+	salt := make([]byte, SaltLen)
 	in.Read(salt)
 
-	dk, _, err := aes.DeriveKey(password, salt, KEY_LEN)
+	dk, _, err := aes.DeriveKey(password, salt, KeyLen)
 	if err != nil {
 		return err
 	}
 
-	name := source[:len(source)-len(SKT_EXT)]
+	name := source[:len(source)-len(SktExt)]
 
 	out, err := os.Create(name)
 	if err != nil {
@@ -106,7 +106,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 		return err
 	}
 	suffix := path.Ext(source)
-	if suffix == SKT_EXT {
+	if suffix == SktExt {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
@@ -119,28 +119,28 @@ func RSAFileEnc(source string, key string, delete bool) error {
 		return err
 	}
 
-	dk, salt, err := aes.DeriveKey(password, nil, KEY_LEN)
+	dk, salt, err := aes.DeriveKey(password, nil, KeyLen)
 	if err != nil {
 		return err
 	}
 
-	pass, err := rsa.RSAEncrypt(password, puk)
+	pbytes, err := rsa.RSAEncrypt(password, puk)
 	if err != nil {
 		return err
 	}
 
-	name := source + SKT_EXT
+	name := source + SktExt
 
 	out, err := os.Create(name)
 	if err != nil {
 		return err
 	}
-	out.WriteString(RSA_VERSION)
-	var pSize = uint64(len(pass))
-	size := make([]byte, PSIZE_LEN)
-	binary.BigEndian.PutUint64(size, uint64(pSize))
+	out.WriteString(RsaVersion)
+	var pSize = uint64(len(pbytes))
+	size := make([]byte, PsizeLen)
+	binary.BigEndian.PutUint64(size, pSize)
 	out.Write(size)
-	out.Write(pass)
+	out.Write(pbytes)
 	out.Write(salt)
 
 	err = aes.AESCTREnc(in, out, dk, dk)
@@ -162,7 +162,7 @@ func RSAFileDec(source string, key string, delete bool) error {
 		return err
 	}
 	suffix := path.Ext(source)
-	if suffix != SKT_EXT {
+	if suffix != SktExt {
 		return nil
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
@@ -170,34 +170,34 @@ func RSAFileDec(source string, key string, delete bool) error {
 	if err != nil {
 		return err
 	}
-	version := make([]byte, len([]byte(RSA_VERSION)))
+	version := make([]byte, len([]byte(RsaVersion)))
 	in.Read(version)
 
-	if string(version) != RSA_VERSION {
+	if string(version) != RsaVersion {
 		return errors.New("Inconsistent Versions:" + string(version))
 	}
 
-	size := make([]byte, PSIZE_LEN)
+	size := make([]byte, PsizeLen)
 	in.Read(size)
 	buf := bytes.NewBuffer(size)
 	var pSize uint64
 	binary.Read(buf, binary.BigEndian, &pSize)
 
-	pass := make([]byte, pSize)
-	in.Read(pass)
-	salt := make([]byte, SALT_LEN)
+	pbytes := make([]byte, pSize)
+	in.Read(pbytes)
+	salt := make([]byte, SaltLen)
 	in.Read(salt)
 
-	password, err := rsa.RSADecrypt(pass, prk)
+	password, err := rsa.RSADecrypt(pbytes, prk)
 	if err != nil {
 		return err
 	}
-	dk, _, err := aes.DeriveKey(password, salt, KEY_LEN)
+	dk, _, err := aes.DeriveKey(password, salt, KeyLen)
 	if err != nil {
 		return err
 	}
 
-	name := source[:len(source)-len(SKT_EXT)]
+	name := source[:len(source)-len(SktExt)]
 	out, err := os.Create(name)
 	if err != nil {
 		return err

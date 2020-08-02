@@ -5,7 +5,7 @@ import (
 )
 
 func AESTextEnc(plaintext, password []byte) ([]byte, error) {
-	dk, salt, err := aes.DeriveKey(password, nil, KEY_LEN)
+	dk, salt, err := aes.DeriveKey(password, nil, KeyLen)
 	if err != nil {
 		return nil, err
 	}
@@ -18,8 +18,8 @@ func AESTextEnc(plaintext, password []byte) ([]byte, error) {
 }
 
 func AESTextDec(ciphertext, password []byte) ([]byte, error) {
-	salt := ciphertext[len(ciphertext)-SALT_LEN:]
-	dk, _, err := aes.DeriveKey(password, salt, KEY_LEN)
+	salt := ciphertext[len(ciphertext)-SaltLen:]
+	dk, _, err := aes.DeriveKey(password, salt, KeyLen)
 	if err != nil {
 		return nil, err
 	}
