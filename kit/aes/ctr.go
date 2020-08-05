@@ -7,16 +7,14 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha512"
-	"encoding/binary"
 	"errors"
 	"io"
 )
 
 const (
-	BufferSize int  = 16 * 1024
-	IvSize     int  = 16
-	V1         byte = 0x1
-	HmacSize        = sha512.Size
+	BufferSize int = 16 * 1024
+	IvSize     int = 16
+	HmacSize       = sha512.Size
 )
 
 var ErrInvalidHMAC = errors.New("invalid HMAC")
@@ -36,9 +34,8 @@ func AESCTREnc(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 	ctr := cipher.NewCTR(cphr, iv)
 	hc := hmac.New(sha512.New, keyHmac)
 
-	out.Write([]byte{V1})
-	w := io.MultiWriter(out, hc)
-	w.Write(iv)
+	writer := io.MultiWriter(out, hc)
+	writer.Write(iv)
 
 	buf := make([]byte, BufferSize)
 	for {
@@ -50,7 +47,7 @@ func AESCTREnc(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 		if n != 0 {
 			outBuf := make([]byte, n)
 			ctr.XORKeyStream(outBuf, buf[:n])
-			w.Write(outBuf)
+			writer.Write(outBuf)
 		}
 
 		if err == io.EOF {
@@ -64,12 +61,6 @@ func AESCTREnc(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 }
 
 func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) {
-	var version int8
-	err = binary.Read(in, binary.BigEndian, &version)
-	if err != nil {
-		return err
-	}
-
 	iv := make([]byte, IvSize)
 	_, err = io.ReadFull(in, iv)
 	if err != nil {
@@ -82,11 +73,9 @@ func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 	}
 
 	ctr := cipher.NewCTR(cphr, iv)
-	h := hmac.New(sha512.New, keyHmac)
-	h.Write(iv)
+	hc := hmac.New(sha512.New, keyHmac)
+	hc.Write(iv)
 	mac := make([]byte, HmacSize)
-
-	w := out
 
 	buf := bufio.NewReaderSize(in, BufferSize)
 	var limit int
@@ -112,12 +101,12 @@ func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 			}
 		}
 
-		h.Write(b[:limit])
+		hc.Write(b[:limit])
 
 		outBuf := make([]byte, int64(limit))
 		buf.Read(b[:limit])
 		ctr.XORKeyStream(outBuf, b[:limit])
-		w.Write(outBuf)
+		out.Write(outBuf)
 
 		if err == io.EOF {
 			break
@@ -128,7 +117,7 @@ func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 		}
 	}
 
-	if !hmac.Equal(mac, h.Sum(nil)) {
+	if !hmac.Equal(mac, hc.Sum(nil)) {
 		return ErrInvalidHMAC
 	}
 

@@ -18,8 +18,9 @@ var Aes = &cli.Command{
 			Usage: "Encrypt the input data using AES-256-CTR",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
-					Name:  "del,d",
-					Usage: "Delete source file",
+					Name:    "del",
+					Aliases: []string{"d"},
+					Usage:   "Delete source file",
 				},
 			},
 			Action: AESEncAction,
@@ -29,8 +30,9 @@ var Aes = &cli.Command{
 			Usage: "Decrypt the input data using AES-256-CTR",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
-					Name:  "del,d",
-					Usage: "Delete source file",
+					Name:    "del",
+					Aliases: []string{"d"},
+					Usage:   "Delete source file",
 				},
 			},
 			Action: AESDecAction,

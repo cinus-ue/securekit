@@ -104,11 +104,11 @@ func RSASign(originData, privateKey []byte) (sig string, err error) {
 	h := sha256.New()
 	h.Write(originData)
 	digest := h.Sum(nil)
-	body, err := rsa.SignPKCS1v15(rand.Reader, prk, crypto.SHA256, digest)
+	signature, err := rsa.SignPKCS1v15(rand.Reader, prk, crypto.SHA256, digest)
 	if err != nil {
 		return
 	}
-	return base64.StdEncoding.EncodeToString(body), nil
+	return base64.StdEncoding.EncodeToString(signature), nil
 }
 
 // RSA verify
@@ -126,11 +126,11 @@ func RSAVerify(signature string, originData, publicKey []byte) (bool, error) {
 	h := sha256.New()
 	h.Write(originData)
 	digest := h.Sum(nil)
-	body, err := base64.StdEncoding.DecodeString(signature)
+	sig, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
 		return false, err
 	}
-	err = rsa.VerifyPKCS1v15(puk, crypto.SHA256, digest, body)
+	err = rsa.VerifyPKCS1v15(puk, crypto.SHA256, digest, sig)
 	if err != nil {
 		return false, err
 	}

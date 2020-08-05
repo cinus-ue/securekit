@@ -137,7 +137,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 	}
 	out.WriteString(RsaVersion)
 	var pSize = uint64(len(pbytes))
-	size := make([]byte, PsizeLen)
+	size := make([]byte, PSizeLen)
 	binary.BigEndian.PutUint64(size, pSize)
 	out.Write(size)
 	out.Write(pbytes)
@@ -177,7 +177,7 @@ func RSAFileDec(source string, key string, delete bool) error {
 		return errors.New("Inconsistent Versions:" + string(version))
 	}
 
-	size := make([]byte, PsizeLen)
+	size := make([]byte, PSizeLen)
 	in.Read(size)
 	buf := bytes.NewBuffer(size)
 	var pSize uint64

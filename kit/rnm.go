@@ -27,15 +27,15 @@ func Rename(source string, password []byte) error {
 		return err
 	}
 
-	plaintext := []byte(GetFileName(source))
-	ciphertext, err := aes.AESGCMEnc(plaintext, dk, salt)
+	fileName := GetFileName(source)
+	ciphertext, err := aes.AESGCMEnc([]byte(fileName), dk, salt)
 	if err != nil {
 		return err
 	}
 
 	name := GetBasePath(source) + RnmVersion + base64.URLEncoding.EncodeToString(ciphertext) + SktExt
 	if len(name) > MaxLen {
-		return errors.New("the file name is too long")
+		return errors.New("the file name is too long:" + fileName)
 	}
 
 	err = os.Rename(source, name)
@@ -52,13 +52,13 @@ func Recover(source string, password []byte) error {
 	}
 	fmt.Printf("\n[*]processing file:%s", source)
 
-	name := GetFileName(source[:len(source)-len(SktExt)])
-	version := name[:len(RnmVersion)]
+	fileName := GetFileName(source[:len(source)-len(SktExt)])
+	version := fileName[:len(RnmVersion)]
 	if version != RnmVersion {
 		return errors.New("Inconsistent Versions:" + version)
 	}
 
-	ciphertext, err := base64.URLEncoding.DecodeString(name[len(RnmVersion):])
+	ciphertext, err := base64.URLEncoding.DecodeString(fileName[len(RnmVersion):])
 	if err != nil {
 		return err
 	}
@@ -74,8 +74,8 @@ func Recover(source string, password []byte) error {
 		return err
 	}
 
-	name = GetBasePath(source) + string(plaintext)
-	err = os.Rename(source, name)
+	fileName = GetBasePath(source) + string(plaintext)
+	err = os.Rename(source, fileName)
 	if err != nil {
 		return err
 	}

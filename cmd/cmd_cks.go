@@ -18,12 +18,14 @@ var Cks = &cli.Command{
 	Usage: "MD5 & SHA checksum utility",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
-			Name:  "text,t",
-			Usage: "Generate hash (checksum) value for a string",
+			Name:    "text",
+			Aliases: []string{"t"},
+			Usage:   "Generate hash (checksum) value for a string",
 		},
 		&cli.BoolFlag{
-			Name:  "file,f",
-			Usage: "Generate hash (checksum) value for a file",
+			Name:    "file",
+			Aliases: []string{"f"},
+			Usage:   "Generate hash (checksum) value for a file",
 		},
 	},
 	Action: CksAction,

@@ -36,7 +36,7 @@ func convertByteToBits(b byte) []bool {
 // getBits returns a slice of booleans representing the binary value of data
 func getBits(data []byte) []bool {
 	bs := make([]byte, 4)
-	binary.LittleEndian.PutUint32(bs, uint32(len(data)))
+	binary.BigEndian.PutUint32(bs, uint32(len(data)))
 	data = append(bs, data...)
 	var results []bool
 	for _, b := range data {
@@ -97,7 +97,7 @@ func assemble(data []uint8) []byte {
 		}
 		result = append(result, b)
 	}
-	payloadSize := binary.LittleEndian.Uint32(result[0:4])
+	payloadSize := binary.BigEndian.Uint32(result[0:4])
 	return result[4 : payloadSize+4]
 }
 

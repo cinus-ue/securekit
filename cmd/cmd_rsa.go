@@ -21,8 +21,9 @@ var Rsa = &cli.Command{
 			Usage: "Encrypt the data (file) using an RSA public key",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
-					Name:  "del,d",
-					Usage: "Delete source file",
+					Name:    "del",
+					Aliases: []string{"d"},
+					Usage:   "Delete source file",
 				},
 			},
 			Action: EncAction,
@@ -32,8 +33,9 @@ var Rsa = &cli.Command{
 			Usage: "Decrypt the data (file) using an RSA private key",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
-					Name:  "del,d",
-					Usage: "Delete source file",
+					Name:    "del",
+					Aliases: []string{"d"},
+					Usage:   "Delete source file",
 				},
 			},
 			Action: DecAction,

@@ -8,9 +8,9 @@ import (
 
 func Compress(input []byte) []byte {
 	var buf bytes.Buffer
-	compr := zlib.NewWriter(&buf)
-	compr.Write(input)
-	compr.Close()
+	writer := zlib.NewWriter(&buf)
+	writer.Write(input)
+	writer.Close()
 	output := buf.Bytes()
 	return output
 }
