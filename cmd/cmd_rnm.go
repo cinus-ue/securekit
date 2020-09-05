@@ -35,6 +35,7 @@ func RnmEncAction(*cli.Context) error {
 	password := util.GetEncPassword()
 	for files.Len() > 0 {
 		path := files.Pop()
+		fmt.Printf("\n[*]processing file:%s", path)
 		err = kit.Rename(path.(string), password)
 		if err != nil {
 			return err
@@ -54,6 +55,7 @@ func RnmDecAction(*cli.Context) error {
 	password := util.GetDecPassword()
 	for files.Len() > 0 {
 		path := files.Pop()
+		fmt.Printf("\n[*]processing file:%s", path)
 		err = kit.Recover(path.(string), password)
 		if err != nil {
 			return err

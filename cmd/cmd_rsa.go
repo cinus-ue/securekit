@@ -71,6 +71,7 @@ func EncAction(c *cli.Context) error {
 		limits <- 1
 		path := files.Pop()
 		go func() {
+			fmt.Printf("\n[*]processing file:%s", path)
 			err = kit.RSAFileEnc(path.(string), key, del)
 			util.CheckErr(err)
 			<-limits
@@ -96,6 +97,7 @@ func DecAction(c *cli.Context) error {
 		limits <- 1
 		path := files.Pop()
 		go func() {
+			fmt.Printf("\n[*]processing file:%s", path)
 			err = kit.RSAFileDec(path.(string), key, del)
 			util.CheckErr(err)
 			<-limits
@@ -147,7 +149,7 @@ func VerifyAction(*cli.Context) error {
 }
 
 func KeyAction(*cli.Context) error {
-	val := util.GetInput("The key size is:")
+	val := util.GetInput("The key size is(1024/2048/4096 bit):")
 	size, err := strconv.Atoi(val)
 	if err != nil {
 		return err

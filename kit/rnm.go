@@ -3,68 +3,55 @@ package kit
 import (
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"os"
-	"path"
+	"strings"
 
 	"github.com/cinus-ue/securekit/kit/aes"
 )
 
 const (
-	RnmVersion = "SKT-RNM-V1"
+	RnmVersion = "SKTRNMV1"
 	MaxLen     = 240
 )
 
-func Rename(source string, password []byte) error {
-	suffix := path.Ext(source)
-	if suffix == SktExt {
+func Rename(source string, passphrase []byte) error {
+	fileName := GetFileName(source)
+	if strings.HasPrefix(fileName, RnmVersion) {
 		return nil
 	}
-	fmt.Printf("\n[*]processing file:%s", source)
-
-	dk, salt, err := aes.DeriveKey(password, nil, KeyLen)
+	dk, salt, err := aes.DeriveKey(passphrase, nil, KeyLen)
 	if err != nil {
 		return err
 	}
 
-	fileName := GetFileName(source)
 	ciphertext, err := aes.AESGCMEnc([]byte(fileName), dk, salt)
 	if err != nil {
 		return err
 	}
 
-	name := GetBasePath(source) + RnmVersion + base64.URLEncoding.EncodeToString(ciphertext) + SktExt
+	name := RnmVersion + base64.URLEncoding.EncodeToString(ciphertext)
 	if len(name) > MaxLen {
 		return errors.New("the file name is too long:" + fileName)
 	}
-
-	err = os.Rename(source, name)
+	err = os.Rename(source, GetBasePath(source)+name)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func Recover(source string, password []byte) error {
-	suffix := path.Ext(source)
-	if suffix != SktExt {
+func Recover(source string, passphrase []byte) error {
+	fileName := GetFileName(source)
+	if !strings.HasPrefix(fileName, RnmVersion) {
 		return nil
 	}
-	fmt.Printf("\n[*]processing file:%s", source)
-
-	fileName := GetFileName(source[:len(source)-len(SktExt)])
-	version := fileName[:len(RnmVersion)]
-	if version != RnmVersion {
-		return errors.New("Inconsistent Versions:" + version)
-	}
-
 	ciphertext, err := base64.URLEncoding.DecodeString(fileName[len(RnmVersion):])
 	if err != nil {
 		return err
 	}
 
 	salt := ciphertext[len(ciphertext)-SaltLen:]
-	dk, _, err := aes.DeriveKey(password, salt, KeyLen)
+	dk, _, err := aes.DeriveKey(passphrase, salt, KeyLen)
 	if err != nil {
 		return err
 	}

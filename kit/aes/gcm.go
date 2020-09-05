@@ -6,12 +6,12 @@ import (
 )
 
 func AESGCMEnc(plaintext, keyAes, nonce []byte) ([]byte, error) {
-	block, err := aes.NewCipher(keyAes)
+	cphr, err := aes.NewCipher(keyAes)
 	if err != nil {
 		return nil, err
 	}
 
-	gcm, err := cipher.NewGCM(block)
+	gcm, err := cipher.NewGCM(cphr)
 	if err != nil {
 		return nil, err
 	}
@@ -22,16 +22,16 @@ func AESGCMEnc(plaintext, keyAes, nonce []byte) ([]byte, error) {
 }
 
 func AESGCMDec(ciphertext, keyAes, nonce []byte) ([]byte, error) {
-	block, err := aes.NewCipher(keyAes)
+	cphr, err := aes.NewCipher(keyAes)
 	if err != nil {
 		return nil, err
 	}
 
-	gcm, err := cipher.NewGCM(block)
+	gcm, err := cipher.NewGCM(cphr)
 	if err != nil {
 		return nil, err
 	}
-	plaintext, err := gcm.Open(nil, nonce, ciphertext[:len(ciphertext)-12], nil)
+	plaintext, err := gcm.Open(nil, nonce, ciphertext[:len(ciphertext)-len(nonce)], nil)
 	if err != nil {
 		return nil, err
 	}

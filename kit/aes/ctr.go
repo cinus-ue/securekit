@@ -12,102 +12,90 @@ import (
 )
 
 const (
-	BufferSize int = 16 * 1024
-	IvSize     int = 16
+	BufferSize int = 1024 * 1024
 	HmacSize       = sha512.Size
 )
 
 var ErrInvalidHMAC = errors.New("invalid HMAC")
 
-func AESCTREnc(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) {
-	iv := make([]byte, IvSize)
-	_, err = rand.Read(iv)
-	if err != nil {
-		return err
-	}
+func AESCTREnc(src io.Reader, dest io.Writer, keyAes, keyHmac []byte) (err error) {
 
 	cphr, err := aes.NewCipher(keyAes)
 	if err != nil {
 		return err
 	}
 
+	iv := make([]byte, cphr.BlockSize())
+	_, err = rand.Read(iv)
+	if err != nil {
+		return err
+	}
 	ctr := cipher.NewCTR(cphr, iv)
 	hc := hmac.New(sha512.New, keyHmac)
 
-	writer := io.MultiWriter(out, hc)
+	writer := io.MultiWriter(dest, hc)
 	writer.Write(iv)
 
 	buf := make([]byte, BufferSize)
 	for {
-		n, err := in.Read(buf)
+		n, err := src.Read(buf)
 		if err != nil && err != io.EOF {
 			return err
 		}
-
 		if n != 0 {
-			outBuf := make([]byte, n)
-			ctr.XORKeyStream(outBuf, buf[:n])
-			writer.Write(outBuf)
+			data := make([]byte, n)
+			ctr.XORKeyStream(data, buf[:n])
+			writer.Write(data)
 		}
-
 		if err == io.EOF {
 			break
 		}
 	}
 
-	out.Write(hc.Sum(nil))
-
+	dest.Write(hc.Sum(nil))
 	return nil
 }
 
-func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) {
-	iv := make([]byte, IvSize)
-	_, err = io.ReadFull(in, iv)
-	if err != nil {
-		return err
-	}
+func AESCTRDec(src io.Reader, dest io.Writer, keyAes, keyHmac []byte) (err error) {
 
 	cphr, err := aes.NewCipher(keyAes)
 	if err != nil {
 		return err
 	}
-
+	iv := make([]byte, cphr.BlockSize())
+	_, err = io.ReadFull(src, iv)
+	if err != nil {
+		return err
+	}
 	ctr := cipher.NewCTR(cphr, iv)
 	hc := hmac.New(sha512.New, keyHmac)
 	hc.Write(iv)
 	mac := make([]byte, HmacSize)
 
-	buf := bufio.NewReaderSize(in, BufferSize)
+	buf := bufio.NewReaderSize(src, BufferSize)
 	var limit int
-	var b []byte
+	var data []byte
 	for {
-		b, err = buf.Peek(BufferSize)
+		data, err = buf.Peek(BufferSize)
 		if err != nil && err != io.EOF {
 			return err
 		}
-
-		limit = len(b) - HmacSize
-
+		limit = len(data) - HmacSize
 		if err == io.EOF {
 			left := buf.Buffered()
 			if left < HmacSize {
 				return errors.New("not enough left")
 			}
-
-			copy(mac, b[left-HmacSize:left])
-
+			copy(mac, data[left-HmacSize:left])
 			if left == HmacSize {
 				break
 			}
 		}
-
-		hc.Write(b[:limit])
-
+		hc.Write(data[:limit])
 		outBuf := make([]byte, int64(limit))
-		buf.Read(b[:limit])
-		ctr.XORKeyStream(outBuf, b[:limit])
-		out.Write(outBuf)
-
+		buf.Read(data[:limit])
+		ctr.XORKeyStream(outBuf, data[:limit])
+		dest.Write(outBuf)
 		if err == io.EOF {
 			break
 		}
@@ -120,6 +108,5 @@ func AESCTRDec(in io.Reader, out io.Writer, keyAes, keyHmac []byte) (err error) 
 	if !hmac.Equal(mac, hc.Sum(nil)) {
 		return ErrInvalidHMAC
 	}
-
 	return nil
 }

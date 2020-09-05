@@ -53,6 +53,7 @@ func AESEncAction(c *cli.Context) error {
 		limits <- 1
 		path := files.Pop()
 		go func() {
+			fmt.Printf("\n[*]processing file:%s", path)
 			err = kit.AESFileEnc(path.(string), password, del)
 			util.CheckErr(err)
 			<-limits
@@ -79,6 +80,7 @@ func AESDecAction(c *cli.Context) error {
 		limits <- 1
 		path := files.Pop()
 		go func() {
+			fmt.Printf("\n[*]processing file:%s", path)
 			err = kit.AESFileDec(path.(string), password, del)
 			util.CheckErr(err)
 			<-limits
