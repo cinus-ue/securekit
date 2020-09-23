@@ -1,6 +1,9 @@
 package img
 
 import (
+	"github.com/disintegration/imaging"
+	"github.com/golang/freetype"
+	"golang.org/x/image/font/gofont/goregular"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -8,12 +11,6 @@ import (
 	"io"
 	"math"
 	"os"
-
-	"github.com/disintegration/imaging"
-	"github.com/golang/freetype/truetype"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/gofont/goregular"
-	"golang.org/x/image/math/fixed"
 )
 
 type Wmk struct {
@@ -27,28 +24,27 @@ func Watermark(r io.Reader, text string, space int, fontSize, opacity, angle flo
 	}
 	wmkWidth := int(math.Sqrt(math.Pow(float64(img.Bounds().Max.X), 2) + math.Pow(float64(img.Bounds().Max.Y), 2)))
 	mark := imaging.New(wmkWidth, wmkWidth, color.RGBA{})
-	f, _ := truetype.Parse(goregular.TTF)
+	font, _ := freetype.ParseFont(goregular.TTF)
+	context := freetype.NewContext()
+	context.SetDPI(72)
+	context.SetFont(font)
+	context.SetFontSize(fontSize)
+	context.SetClip(mark.Bounds())
+	context.SetDst(mark)
+	context.SetSrc(image.NewUniform(color.RGBA{R: 128, G: 128, B: 128, A: 255}))
 	var x, y = 0, 0
 	for x < wmkWidth {
+		var X = 0
 		for y < wmkWidth {
-			d := &font.Drawer{
-				Dst: mark,
-				Src: image.NewUniform(color.RGBA{R: 128, G: 128, B: 128, A: 255}),
-				Face: truetype.NewFace(f, &truetype.Options{
-					Size: fontSize,
-					DPI:  72,
-				}),
-				Dot: fixed.Point26_6{X: fixed.Int26_6(x * 64 * space), Y: fixed.Int26_6(y * 64 * space)},
-			}
-			d.DrawString(text)
-			y += 13
+			pt, _ := context.DrawString(text, freetype.Pt(x, y))
+			X = pt.X.Ceil()
+			y = pt.Y.Ceil() + space
 		}
 		y = 0
-		x += 6 * len(text)
+		x = X + space
 	}
 	mark = imaging.Rotate(mark, angle, color.RGBA{})
-	imgOut := imaging.OverlayCenter(img, mark, opacity)
-	return &Wmk{image: imgOut}, nil
+	return &Wmk{image: imaging.OverlayCenter(img, mark, opacity)}, nil
 }
 
 func (w *Wmk) SaveJPG(name string) error {

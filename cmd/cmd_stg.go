@@ -34,7 +34,7 @@ func HideAction(*cli.Context) error {
 	imgPath := util.GetInput("Please enter the path of the cover image:")
 	msgPath := util.GetInput("Please enter the path of the message file:")
 
-	cover, err := os.Open(imgPath)
+	image, err := os.Open(imgPath)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func HideAction(*cli.Context) error {
 		return err
 	}
 	defer func() {
-		cover.Close()
+		image.Close()
 		out.Close()
 	}()
 
@@ -55,7 +55,7 @@ func HideAction(*cli.Context) error {
 	payload = assemble(payload, []byte(filename))
 
 	fmt.Printf("[*]Encoding and saving the image...\n")
-	err = img.LSBEncoder(out, cover, payload)
+	err = img.LSBEncoder(out, image, payload)
 	if err != nil {
 		return err
 	}

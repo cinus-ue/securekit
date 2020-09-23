@@ -11,13 +11,14 @@ import (
 )
 
 var Wmk = &cli.Command{
-	Name:   "wmk",
-	Usage:  "Add a text watermark to an image",
-	Action: WmkAction,
+	Name:      "wmk",
+	Usage:     "Add a text watermark to an image",
+	ArgsUsage: "space(30) fontsize(24) opacity(0.8) angle(30)",
+	Action:    WmkAction,
 }
 
 func WmkAction(c *cli.Context) error {
-	var space = 3
+	var space = 60
 	var fontSize, opacity, angle float64 = 24, 0.8, 30
 	if c.Args().Present() {
 		space, _ = strconv.Atoi(c.Args().Get(0))
@@ -27,13 +28,13 @@ func WmkAction(c *cli.Context) error {
 	}
 	path := util.GetInput("Please enter the path of the image:")
 	text := util.GetInput("Please enter the watermark text:")
-	in, err := os.Open(path)
+	image, err := os.Open(path)
 	if err != nil {
 		return err
 	}
-	defer in.Close()
+	defer image.Close()
 
-	wmk, err := img.Watermark(in, text, space, fontSize, opacity, angle)
+	wmk, err := img.Watermark(image, text, space, fontSize, opacity, angle)
 	if err != nil {
 		return err
 	}

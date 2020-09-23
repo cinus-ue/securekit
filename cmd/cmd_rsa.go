@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"io/ioutil"
 	"strconv"
@@ -72,7 +73,7 @@ func EncAction(c *cli.Context) error {
 		path := files.Pop()
 		go func() {
 			fmt.Printf("\n[*]processing file:%s", path)
-			err = kit.RSAFileEnc(path.(string), key, del)
+			err = kit.RSAFileEncrypt(path.(string), key, del)
 			util.CheckErr(err)
 			<-limits
 		}()
@@ -98,7 +99,7 @@ func DecAction(c *cli.Context) error {
 		path := files.Pop()
 		go func() {
 			fmt.Printf("\n[*]processing file:%s", path)
-			err = kit.RSAFileDec(path.(string), key, del)
+			err = kit.RSAFileDecrypt(path.(string), key, del)
 			util.CheckErr(err)
 			<-limits
 		}()
@@ -118,11 +119,11 @@ func SignAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	data, err := ioutil.ReadFile(source)
+	digest, err := kit.Checksum(source, sha256.New())
 	if err != nil {
 		return err
 	}
-	signature, err := rsa.RSASign(data, prk)
+	signature, err := rsa.Sign(digest, prk)
 	fmt.Printf("[*]Signature->%s\n", signature)
 	return nil
 }
@@ -136,15 +137,15 @@ func VerifyAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	data, err := ioutil.ReadFile(source)
+	digest, err := kit.Checksum(source, sha256.New())
 	if err != nil {
 		return err
 	}
-	ret, err := rsa.RSAVerify(signature, data, puk)
+	ret, err := rsa.Verify(signature, digest, puk)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("[*]RSA Verify->%t\n", ret)
+	fmt.Printf("[*]Signature valid->%t\n", ret)
 	return nil
 }
 

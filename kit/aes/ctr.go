@@ -18,9 +18,9 @@ const (
 
 var ErrInvalidHMAC = errors.New("invalid HMAC")
 
-func AESCTREnc(src io.Reader, dest io.Writer, keyAes, keyHmac []byte) (err error) {
+func CTREncrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 
-	cphr, err := aes.NewCipher(keyAes)
+	cphr, err := aes.NewCipher(key)
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func AESCTREnc(src io.Reader, dest io.Writer, keyAes, keyHmac []byte) (err error
 		return err
 	}
 	ctr := cipher.NewCTR(cphr, iv)
-	hc := hmac.New(sha512.New, keyHmac)
+	hc := hmac.New(sha512.New, key)
 
 	writer := io.MultiWriter(dest, hc)
 	writer.Write(iv)
@@ -56,9 +56,9 @@ func AESCTREnc(src io.Reader, dest io.Writer, keyAes, keyHmac []byte) (err error
 	return nil
 }
 
-func AESCTRDec(src io.Reader, dest io.Writer, keyAes, keyHmac []byte) (err error) {
+func CTRDecrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 
-	cphr, err := aes.NewCipher(keyAes)
+	cphr, err := aes.NewCipher(key)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func AESCTRDec(src io.Reader, dest io.Writer, keyAes, keyHmac []byte) (err error
 		return err
 	}
 	ctr := cipher.NewCTR(cphr, iv)
-	hc := hmac.New(sha512.New, keyHmac)
+	hc := hmac.New(sha512.New, key)
 	hc.Write(iv)
 	mac := make([]byte, HmacSize)
 

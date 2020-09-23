@@ -24,7 +24,7 @@ func Rename(source string, passphrase []byte) error {
 		return err
 	}
 
-	ciphertext, err := aes.AESGCMEnc([]byte(fileName), dk, salt)
+	ciphertext, err := aes.GCMEncrypt([]byte(fileName), dk, salt)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func Recover(source string, passphrase []byte) error {
 		return err
 	}
 
-	plaintext, err := aes.AESGCMDec(ciphertext, dk, salt)
+	plaintext, err := aes.GCMDecrypt(ciphertext, dk, salt)
 	if err != nil {
 		return err
 	}

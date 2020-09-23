@@ -17,7 +17,7 @@ var (
 	SKTRSAVersion = []byte{0x53, 0x4B, 0x54, 0x01, 0x01}
 )
 
-func AESFileEnc(source string, passphrase []byte, delete bool) error {
+func AESFileEncrypt(source string, passphrase []byte, delete bool) error {
 	if path.Ext(source) == SktExt {
 		return nil
 	}
@@ -38,7 +38,7 @@ func AESFileEnc(source string, passphrase []byte, delete bool) error {
 	dest.Write(SKTAESVersion)
 	dest.Write(salt)
 
-	err = aes.AESCTREnc(src, dest, dk, dk)
+	err = aes.CTREncrypt(src, dest, dk)
 	dest.Close()
 	if err != nil {
 		os.Remove(name)
@@ -51,7 +51,7 @@ func AESFileEnc(source string, passphrase []byte, delete bool) error {
 	return nil
 }
 
-func AESFileDec(source string, passphrase []byte, delete bool) error {
+func AESFileDecrypt(source string, passphrase []byte, delete bool) error {
 	if path.Ext(source) != SktExt {
 		return nil
 	}
@@ -75,7 +75,7 @@ func AESFileDec(source string, passphrase []byte, delete bool) error {
 	if err != nil {
 		return err
 	}
-	err = aes.AESCTRDec(src, dest, dk, dk)
+	err = aes.CTRDecrypt(src, dest, dk)
 	dest.Close()
 	if err != nil {
 		os.Remove(name)
@@ -88,7 +88,7 @@ func AESFileDec(source string, passphrase []byte, delete bool) error {
 	return nil
 }
 
-func RSAFileEnc(source string, key string, delete bool) error {
+func RSAFileEncrypt(source string, key string, delete bool) error {
 	puk, err := ioutil.ReadFile(key)
 	if err != nil {
 		return err
@@ -109,7 +109,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 		return err
 	}
 
-	pbytes, err := rsa.RSAEncrypt(password, puk)
+	pbytes, err := rsa.Encrypt(password, puk)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 	dest.Write(pbytes)
 	dest.Write(salt)
 
-	err = aes.AESCTREnc(src, dest, dk, dk)
+	err = aes.CTREncrypt(src, dest, dk)
 	dest.Close()
 	if err != nil {
 		os.Remove(name)
@@ -141,7 +141,7 @@ func RSAFileEnc(source string, key string, delete bool) error {
 	return nil
 }
 
-func RSAFileDec(source string, key string, delete bool) error {
+func RSAFileDecrypt(source string, key string, delete bool) error {
 	prk, err := ioutil.ReadFile(key)
 	if err != nil {
 		return err
@@ -166,7 +166,7 @@ func RSAFileDec(source string, key string, delete bool) error {
 	salt := make([]byte, SaltLen)
 	src.Read(salt)
 
-	password, err := rsa.RSADecrypt(pbytes, prk)
+	password, err := rsa.Decrypt(pbytes, prk)
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func RSAFileDec(source string, key string, delete bool) error {
 	if err != nil {
 		return err
 	}
-	err = aes.AESCTRDec(src, dest, dk, dk)
+	err = aes.CTRDecrypt(src, dest, dk)
 	dest.Close()
 	if err != nil {
 		os.Remove(name)

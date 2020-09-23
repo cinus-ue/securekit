@@ -5,8 +5,8 @@ import (
 	"crypto/cipher"
 )
 
-func AESGCMEnc(plaintext, keyAes, nonce []byte) ([]byte, error) {
-	cphr, err := aes.NewCipher(keyAes)
+func GCMEncrypt(plaintext, key, nonce []byte) ([]byte, error) {
+	cphr, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
@@ -21,8 +21,8 @@ func AESGCMEnc(plaintext, keyAes, nonce []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func AESGCMDec(ciphertext, keyAes, nonce []byte) ([]byte, error) {
-	cphr, err := aes.NewCipher(keyAes)
+func GCMDecrypt(ciphertext, key, nonce []byte) ([]byte, error) {
+	cphr, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}

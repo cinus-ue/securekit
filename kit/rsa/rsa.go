@@ -4,7 +4,6 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
@@ -13,7 +12,7 @@ import (
 )
 
 // RSA encrypt
-func RSAEncrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
+func Encrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return nil, errors.New("public key error")
@@ -52,7 +51,7 @@ func RSAEncrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 }
 
 // RSA decrypt
-func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
+func Decrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
 		return nil, errors.New("private key error")
@@ -90,7 +89,7 @@ func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 }
 
 // RSA sign
-func RSASign(originData, privateKey []byte) (sig string, err error) {
+func Sign(digest, privateKey []byte) (sig string, err error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
 		err = errors.New("private key error")
@@ -100,11 +99,7 @@ func RSASign(originData, privateKey []byte) (sig string, err error) {
 	if err != nil {
 		return
 	}
-
-	h := sha256.New()
-	h.Write(originData)
-	digest := h.Sum(nil)
-	signature, err := rsa.SignPKCS1v15(rand.Reader, prk, crypto.SHA256, digest)
+	signature, err := rsa.SignPSS(rand.Reader, prk, crypto.SHA256, digest, nil)
 	if err != nil {
 		return
 	}
@@ -112,7 +107,7 @@ func RSASign(originData, privateKey []byte) (sig string, err error) {
 }
 
 // RSA verify
-func RSAVerify(signature string, originData, publicKey []byte) (bool, error) {
+func Verify(signature string, digest, publicKey []byte) (bool, error) {
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return false, errors.New("public key error")
@@ -122,15 +117,11 @@ func RSAVerify(signature string, originData, publicKey []byte) (bool, error) {
 		return false, err
 	}
 	puk := pubInterface.(*rsa.PublicKey)
-
-	h := sha256.New()
-	h.Write(originData)
-	digest := h.Sum(nil)
 	sig, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
 		return false, err
 	}
-	err = rsa.VerifyPKCS1v15(puk, crypto.SHA256, digest, sig)
+	err = rsa.VerifyPSS(puk, crypto.SHA256, digest, sig, nil)
 	if err != nil {
 		return false, err
 	}
