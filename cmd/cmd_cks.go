@@ -78,14 +78,10 @@ func CksAction(c *cli.Context) error {
 		ret32 := kit.Md532(data)
 		fmt.Printf("[*]Md5-16->%s", hex.EncodeToString(ret32)[8:24])
 		fmt.Printf("\n[*]Md5-32->%s", hex.EncodeToString(ret32))
-		ret1 := kit.SHA1(data)
-		fmt.Printf("\n[*]SHA1--->%s", hex.EncodeToString(ret1))
-		ret256 := kit.SHA256(data)
-		fmt.Printf("\n[*]SHA256->%s", hex.EncodeToString(ret256))
-		ret384 := kit.SHA384(data)
-		fmt.Printf("\n[*]SHA384->%s", hex.EncodeToString(ret384))
-		ret512 := kit.SHA512(data)
-		fmt.Printf("\n[*]SHA512->%s\n", hex.EncodeToString(ret512))
+		fmt.Printf("\n[*]SHA1--->%s", hex.EncodeToString(kit.SHA1(data)))
+		fmt.Printf("\n[*]SHA256->%s", hex.EncodeToString(kit.SHA256(data)))
+		fmt.Printf("\n[*]SHA384->%s", hex.EncodeToString(kit.SHA384(data)))
+		fmt.Printf("\n[*]SHA512->%s\n", hex.EncodeToString(kit.SHA512(data)))
 	}
 	return nil
 }
