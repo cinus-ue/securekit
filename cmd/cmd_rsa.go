@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
-	"time"
 
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/kit/rsa"
@@ -68,21 +67,11 @@ func EncAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	for files.Len() > 0 {
-		limits <- 1
-		path := files.Pop()
-		go func() {
-			fmt.Printf("\n[*]processing file:%s", path)
-			err = kit.RSAFileEncrypt(path.(string), key, del)
-			util.CheckErr(err)
-			<-limits
-		}()
-	}
-	for len(limits) != 0 || !files.IsEmpty() {
-		time.Sleep(time.Millisecond * T)
-	}
-	fmt.Print("\n[*]Operation Completed\n")
-	return nil
+
+	err = ApplyAllFiles(files, func(path string) error {
+		return kit.RSAFileEncrypt(path, key, del)
+	})
+	return err
 }
 
 func DecAction(c *cli.Context) error {
@@ -94,21 +83,11 @@ func DecAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	for files.Len() > 0 {
-		limits <- 1
-		path := files.Pop()
-		go func() {
-			fmt.Printf("\n[*]processing file:%s", path)
-			err = kit.RSAFileDecrypt(path.(string), key, del)
-			util.CheckErr(err)
-			<-limits
-		}()
-	}
-	for len(limits) != 0 || !files.IsEmpty() {
-		time.Sleep(time.Millisecond * T)
-	}
-	fmt.Print("\n[*]Operation Completed\n")
-	return nil
+
+	err = ApplyAllFiles(files, func(path string) error {
+		return kit.RSAFileDecrypt(path, key, del)
+	})
+	return err
 }
 
 func SignAction(*cli.Context) error {

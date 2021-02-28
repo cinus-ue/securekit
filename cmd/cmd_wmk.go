@@ -13,7 +13,7 @@ import (
 var Wmk = &cli.Command{
 	Name:      "wmk",
 	Usage:     "Add a text watermark to an image",
-	ArgsUsage: "space(30) fontsize(24) opacity(0.8) angle(30)",
+	ArgsUsage: "space(60) fontsize(24) opacity(0.8) angle(30)",
 	Action:    WmkAction,
 }
 

@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
@@ -49,21 +46,10 @@ func AESEncAction(c *cli.Context) error {
 		return err
 	}
 	password := util.GetEncPassword()
-	for files.Len() > 0 {
-		limits <- 1
-		path := files.Pop()
-		go func() {
-			fmt.Printf("\n[*]processing file:%s", path)
-			err = kit.AESFileEncrypt(path.(string), password, del)
-			util.CheckErr(err)
-			<-limits
-		}()
-	}
-	for len(limits) != 0 || !files.IsEmpty() {
-		time.Sleep(time.Millisecond * T)
-	}
-	fmt.Print("\n[*]Operation Completed\n")
-	return nil
+	err = ApplyAllFiles(files, func(path string) error {
+		return kit.AESFileEncrypt(path, password, del)
+	})
+	return err
 }
 
 func AESDecAction(c *cli.Context) error {
@@ -74,21 +60,9 @@ func AESDecAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
 	password := util.GetDecPassword()
-	for files.Len() > 0 {
-		limits <- 1
-		path := files.Pop()
-		go func() {
-			fmt.Printf("\n[*]processing file:%s", path)
-			err = kit.AESFileDecrypt(path.(string), password, del)
-			util.CheckErr(err)
-			<-limits
-		}()
-	}
-	for len(limits) != 0 || !files.IsEmpty() {
-		time.Sleep(time.Millisecond * T)
-	}
-	fmt.Print("\n[*]Operation Completed\n")
-	return nil
+	err = ApplyAllFiles(files, func(path string) error {
+		return kit.AESFileDecrypt(path, password, del)
+	})
+	return err
 }
