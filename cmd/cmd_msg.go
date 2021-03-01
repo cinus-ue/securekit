@@ -30,7 +30,7 @@ func MsgEncAction(*cli.Context) error {
 	message := util.GetInput("Please enter a message:")
 	password := util.GetEncPassword()
 
-	ciphertext, err := kit.AESTextEncrypt([]byte(message), password)
+	ciphertext, err := kit.SktMsgEncrypt([]byte(message), password)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func MsgDecAction(*cli.Context) error {
 		return err
 	}
 
-	plaintext, err := kit.AESTextDecrypt(ciphertext, password)
+	plaintext, err := kit.SktMsgDecrypt(ciphertext, password)
 	if err != nil {
 		return err
 	}

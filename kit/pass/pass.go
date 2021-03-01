@@ -1,28 +1,21 @@
 package pass
 
 import (
-	crypto_rand "crypto/rand"
-	"encoding/base64"
-	math_rand "math/rand"
-	"time"
+	"crypto/rand"
 )
 
 func GenerateRandomBytes(n int) ([]byte, error) {
 	b := make([]byte, n)
-	_, err := crypto_rand.Read(b)
+	_, err := rand.Read(b)
 	if err != nil {
 		return nil, err
 	}
 	return b, nil
 }
 
-func GenerateRandomPass(s int) (string, error) {
-	b, err := GenerateRandomBytes(s)
-	return base64.URLEncoding.EncodeToString(b), err
-}
-
 func GenerateRandomString(digit, symbol bool, length int) string {
-	math_rand.Seed(time.Now().UnixNano())
+	bytes := make([]byte, length)
+	rand.Read(bytes)
 	charset := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	digits := "0123456789"
 	symbols := "~=+%^*/()[]{}/!@#$?|"
@@ -33,10 +26,8 @@ func GenerateRandomString(digit, symbol bool, length int) string {
 		charset = charset + symbols
 	}
 
-	buf := make([]byte, length)
-	for i := 0; i < length; i++ {
-		buf[i] = charset[math_rand.Intn(len(charset))]
+	for i, b := range bytes {
+		bytes[i] = charset[b%byte(len(charset))]
 	}
-
-	return string(buf)
+	return string(bytes)
 }

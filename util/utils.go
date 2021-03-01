@@ -82,7 +82,6 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 
 func CheckErr(err error) {
 	if err != nil {
-		fmt.Printf("\n[*]ERROR-[%s]\n", err.Error())
-		os.Exit(1)
+		panic(err)
 	}
 }

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/kit/kvdb"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
@@ -29,10 +30,14 @@ func RnmEncAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-
 	password := util.GetEncPassword()
+	db, err := kvdb.InitDB(kvdb.Disk)
+	if err != nil {
+		return err
+	}
+	defer db.Save()
 	err = ApplyOrderedFiles(files, func(path string) error {
-		return kit.Rename(path, password)
+		return kit.Rename(path, password, db)
 	})
 	return err
 }
@@ -43,10 +48,13 @@ func RnmDecAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-
 	password := util.GetDecPassword()
+	db, err := kvdb.InitDB(kvdb.Disk)
+	if err != nil {
+		return err
+	}
 	err = ApplyOrderedFiles(files, func(path string) error {
-		return kit.Recover(path, password)
+		return kit.Recover(path, password, db)
 	})
 	return err
 }

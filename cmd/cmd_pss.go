@@ -21,10 +21,7 @@ func PassAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	password, err := pass.GenerateRandomPass(length)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("Your new password is:%s\n", password[:length])
+	password := pass.GenerateRandomString(true, true, length)
+	fmt.Printf("Your new password is: %s\n", password)
 	return nil
 }

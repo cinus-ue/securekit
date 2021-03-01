@@ -2,19 +2,17 @@ package kit
 
 import (
 	"encoding/base64"
-	"errors"
 	"os"
 	"strings"
 
 	"github.com/cinus-ue/securekit/kit/aes"
+	"github.com/cinus-ue/securekit/kit/kvdb"
+	"github.com/cinus-ue/securekit/kit/pass"
 )
 
-const (
-	RnmVersion = "SKTRNMV1"
-	MaxLen     = 240
-)
+const RnmVersion = "SKTRNMV1"
 
-func Rename(source string, passphrase []byte) error {
+func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
 	fileName := GetFileName(source)
 	if strings.HasPrefix(fileName, RnmVersion) {
 		return nil
@@ -29,42 +27,43 @@ func Rename(source string, passphrase []byte) error {
 		return err
 	}
 
-	name := RnmVersion + base64.URLEncoding.EncodeToString(ciphertext)
-	if len(name) > MaxLen {
-		return errors.New("the file name is too long:" + fileName)
-	}
-	err = os.Rename(source, GetBasePath(source)+name)
+	name := base64.URLEncoding.EncodeToString(ciphertext)
+	id := RnmVersion + pass.GenerateRandomString(false, false, 20)
+
+	err = os.Rename(source, GetBasePath(source)+id)
 	if err != nil {
 		return err
 	}
-	return nil
+	return db.Set(id, name)
 }
 
-func Recover(source string, passphrase []byte) error {
-	fileName := GetFileName(source)
-	if !strings.HasPrefix(fileName, RnmVersion) {
+func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
+	id := GetFileName(source)
+	if !strings.HasPrefix(id, RnmVersion) {
 		return nil
 	}
-	ciphertext, err := base64.URLEncoding.DecodeString(fileName[len(RnmVersion):])
-	if err != nil {
-		return err
-	}
+	if fileName, ok := db.Get(id); ok {
+		ciphertext, err := base64.URLEncoding.DecodeString(fileName)
+		if err != nil {
+			return err
+		}
 
-	salt := ciphertext[len(ciphertext)-SaltLen:]
-	dk, _, err := aes.DeriveKey(passphrase, salt, KeyLen)
-	if err != nil {
-		return err
-	}
+		salt := ciphertext[len(ciphertext)-SaltLen:]
+		dk, _, err := aes.DeriveKey(passphrase, salt, KeyLen)
+		if err != nil {
+			return err
+		}
 
-	plaintext, err := aes.GCMDecrypt(ciphertext, dk, salt)
-	if err != nil {
-		return err
-	}
+		plaintext, err := aes.GCMDecrypt(ciphertext, dk, salt)
+		if err != nil {
+			return err
+		}
 
-	fileName = GetBasePath(source) + string(plaintext)
-	err = os.Rename(source, fileName)
-	if err != nil {
-		return err
+		fileName = GetBasePath(source) + string(plaintext)
+		err = os.Rename(source, fileName)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

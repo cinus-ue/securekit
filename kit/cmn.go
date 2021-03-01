@@ -15,7 +15,7 @@ const (
 
 func VersionCheck(src io.Reader, versionRequirement []byte) error {
 	version := make([]byte, len(versionRequirement))
-	src.Read(version)
+	_, _ = src.Read(version)
 	if !bytes.Equal(version, versionRequirement) {
 		return errors.New("Inconsistent Version:" + string(version))
 	}
