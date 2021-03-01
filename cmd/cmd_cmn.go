@@ -6,7 +6,6 @@ import (
 
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/kit/sema"
-	"github.com/cinus-ue/securekit/util"
 )
 
 var semaphore = sema.NewSemaphore(runtime.NumCPU())
@@ -16,12 +15,15 @@ type FileFunc func(path string) error
 func ApplyAllFiles(files *kit.Stack, fn FileFunc) error {
 	for files.Len() > 0 {
 		path := files.Pop()
+		semaphore.Add(1)
 		go func() {
 			defer semaphore.Done()
-			semaphore.Add(1)
 			fmt.Printf("\n[*]processing file:%s", path)
 			err := fn(path.(string))
-			util.CheckErr(err)
+			if err != nil {
+				fmt.Printf("\n[*]ERROR-[%s]\n", err.Error())
+				files.Clear()
+			}
 		}()
 	}
 	semaphore.Wait()
