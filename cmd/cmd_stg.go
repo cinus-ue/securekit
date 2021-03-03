@@ -31,13 +31,11 @@ var Stg = &cli.Command{
 }
 
 func HideAction(*cli.Context) error {
-	imgPath := util.GetInput("Please enter the path of the cover image:")
-	msgPath := util.GetInput("Please enter the path of the message file:")
-
-	image, err := os.Open(imgPath)
+	image, err := os.Open(util.GetInput("Please enter the path of the cover image:"))
 	if err != nil {
 		return err
 	}
+	msgPath := util.GetInput("Please enter the path of the message file:")
 	payload, err := ioutil.ReadFile(msgPath)
 	if err != nil {
 		return err
@@ -50,54 +48,43 @@ func HideAction(*cli.Context) error {
 		image.Close()
 		out.Close()
 	}()
-
 	filename := kit.GetFileName(msgPath)
 	payload = assemble(payload, []byte(filename))
-
-	fmt.Printf("[*]Encoding and saving the image...\n")
+	fmt.Println("[*]Encoding and saving the image...")
 	err = img.LSBEncoder(out, image, payload)
 	if err != nil {
 		return err
 	}
 	out.Sync()
-	fmt.Print("[*]Done.\n")
+	fmt.Println("[*]Done.")
 	return nil
 }
 
 func ExtractAction(*cli.Context) error {
-	source := util.GetInput("Please enter the path of the stego file:")
-
-	in, err := os.Open(source)
+	in, err := os.Open(util.GetInput("Please enter the path of the stego file:"))
 	if err != nil {
 		return err
 	}
 	payload, err := img.LSBDecoder(in)
-
 	fileNameSize := uint64(payload[5])
 	size := payload[6:14]
 	buf := bytes.NewBuffer(size)
-
 	var fileSize uint64
 	binary.Read(buf, binary.BigEndian, &fileSize)
 	filename := string(payload[14 : 14+fileNameSize])
-
-	fmt.Printf("[*]Extracting %s\n", filename)
-
+	fmt.Println("[*]Extracting:", filename)
 	out, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
-
 	defer func() {
 		in.Close()
 		out.Close()
 	}()
-
 	msg := payload[14+fileNameSize : 14+fileNameSize+fileSize]
 	out.Write(msg)
 	out.Sync()
-
-	fmt.Print("[*]Done.\n")
+	fmt.Println("[*]Done.")
 	return nil
 }
 

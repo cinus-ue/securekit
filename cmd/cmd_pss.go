@@ -16,8 +16,7 @@ var Pss = &cli.Command{
 }
 
 func PassAction(*cli.Context) error {
-	val := util.GetInput("Password Length:")
-	length, err := strconv.Atoi(val)
+	length, err := strconv.Atoi(util.GetInput("Password Length:"))
 	if err != nil {
 		return err
 	}

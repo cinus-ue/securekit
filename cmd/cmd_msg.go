@@ -29,7 +29,6 @@ var Msg = &cli.Command{
 func MsgEncAction(*cli.Context) error {
 	message := util.GetInput("Please enter a message:")
 	password := util.GetEncPassword()
-
 	ciphertext, err := kit.SktMsgEncrypt([]byte(message), password)
 	if err != nil {
 		return err
@@ -41,17 +40,14 @@ func MsgEncAction(*cli.Context) error {
 func MsgDecAction(*cli.Context) error {
 	message := util.GetInput("Paste the encrypted text here to decrypt:")
 	password := util.GetDecPassword()
-
 	ciphertext, err := base64.StdEncoding.DecodeString(message)
 	if err != nil {
 		return err
 	}
-
 	plaintext, err := kit.SktMsgDecrypt(ciphertext, password)
 	if err != nil {
 		return err
 	}
-
 	fmt.Printf("\n[*]Decrypted Output->%s\n", plaintext)
 	return nil
 }

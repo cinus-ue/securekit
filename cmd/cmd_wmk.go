@@ -21,25 +21,27 @@ func WmkAction(c *cli.Context) error {
 	var space = 60
 	var fontSize, opacity, angle float64 = 24, 0.8, 30
 	if c.Args().Present() {
+		if c.Args().Len() != 4 {
+			util.ArgumentMissing()
+			return nil
+		}
 		space, _ = strconv.Atoi(c.Args().Get(0))
 		fontSize, _ = strconv.ParseFloat(c.Args().Get(1), 64)
 		opacity, _ = strconv.ParseFloat(c.Args().Get(2), 64)
 		angle, _ = strconv.ParseFloat(c.Args().Get(3), 64)
 	}
-	path := util.GetInput("Please enter the path of the image:")
-	text := util.GetInput("Please enter the watermark text:")
-	image, err := os.Open(path)
+	image, err := os.Open(util.GetInput("Please enter the path of the image:"))
 	if err != nil {
 		return err
 	}
 	defer image.Close()
-
+	text := util.GetInput("Please enter the watermark text:")
 	wmk, err := img.Watermark(image, text, space, fontSize, opacity, angle)
 	if err != nil {
 		return err
 	}
 	format := util.GetInput("Select output format[JPG-1/PNG-2]:")
-	fmt.Printf("[*]Encoding and saving the image...\n")
+	fmt.Println("[*]Encoding and saving the image...")
 	switch format {
 	case "1":
 		err = wmk.SaveJPG("wmk-out.jpg")
@@ -52,6 +54,6 @@ func WmkAction(c *cli.Context) error {
 			return err
 		}
 	}
-	fmt.Print("[*]Done.\n")
+	fmt.Println("[*]Done.")
 	return nil
 }

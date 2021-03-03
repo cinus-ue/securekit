@@ -60,15 +60,12 @@ var Rsa = &cli.Command{
 
 func EncAction(c *cli.Context) error {
 	var del = c.Bool("del")
-	source := util.GetInput("Please enter path to scan:")
-	key := util.GetInput("Please enter the path of the public key:")
-
-	files, err := kit.PathScan(source, true)
+	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
 		return err
 	}
-
-	err = ApplyAllFiles(files, func(path string) error {
+	key := util.GetInput("Please enter the path of the public key:")
+	err = util.ApplyAllFiles(files, func(path string) error {
 		return kit.RSAFileEncrypt(path, key, del)
 	})
 	return err
@@ -76,29 +73,23 @@ func EncAction(c *cli.Context) error {
 
 func DecAction(c *cli.Context) error {
 	var del = c.Bool("del")
-	source := util.GetInput("Please enter path to scan:")
-	key := util.GetInput("Please enter the path of the private key:")
-
-	files, err := kit.PathScan(source, true)
+	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
 		return err
 	}
-
-	err = ApplyAllFiles(files, func(path string) error {
+	key := util.GetInput("Please enter the path of the private key:")
+	err = util.ApplyAllFiles(files, func(path string) error {
 		return kit.RSAFileDecrypt(path, key, del)
 	})
 	return err
 }
 
 func SignAction(*cli.Context) error {
-	source := util.GetInput("Please enter the path of the source file:")
-	key := util.GetInput("Please enter the path of the private key:")
-
-	prk, err := ioutil.ReadFile(key)
+	digest, err := kit.Checksum(util.GetInput("Please enter the path of the source file:"), sha256.New())
 	if err != nil {
 		return err
 	}
-	digest, err := kit.Checksum(source, sha256.New())
+	prk, err := ioutil.ReadFile(util.GetInput("Please enter the path of the private key:"))
 	if err != nil {
 		return err
 	}
@@ -108,19 +99,15 @@ func SignAction(*cli.Context) error {
 }
 
 func VerifyAction(*cli.Context) error {
-	source := util.GetInput("Please enter the path of the source file:")
-	key := util.GetInput("Please enter the path of the public key:")
-	signature := util.GetInput("Please enter the signature:")
-
-	puk, err := ioutil.ReadFile(key)
+	digest, err := kit.Checksum(util.GetInput("Please enter the path of the source file:"), sha256.New())
 	if err != nil {
 		return err
 	}
-	digest, err := kit.Checksum(source, sha256.New())
+	puk, err := ioutil.ReadFile(util.GetInput("Please enter the path of the public key:"))
 	if err != nil {
 		return err
 	}
-	ret, err := rsa.Verify(signature, digest, puk)
+	ret, err := rsa.Verify(util.GetInput("Please enter the signature:"), digest, puk)
 	if err != nil {
 		return err
 	}
@@ -129,8 +116,7 @@ func VerifyAction(*cli.Context) error {
 }
 
 func KeyAction(*cli.Context) error {
-	val := util.GetInput("The key size is(1024/2048/4096 bit):")
-	size, err := strconv.Atoi(val)
+	size, err := strconv.Atoi(util.GetInput("The key size is(1024/2048/4096 bit):"))
 	if err != nil {
 		return err
 	}
@@ -142,6 +128,6 @@ func KeyAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Print("Keys Generated!\n")
+	fmt.Println("Keys Generated!")
 	return nil
 }

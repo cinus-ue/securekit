@@ -5,12 +5,20 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 
+	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/kit/sema"
 	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
+
+var semaphore = sema.NewSemaphore(runtime.NumCPU())
+
+type FileFunc func(path string) error
 
 type Charset string
 
@@ -80,6 +88,55 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 	return str
 }
 
+func ApplyOrderedFiles(files *kit.Stack, fn FileFunc) error {
+	for files.Len() > 0 {
+		path := files.Pop()
+		printPath(path.(string))
+		err := fn(path.(string))
+		if err != nil {
+			return err
+		}
+	}
+	OperationCompleted()
+	return nil
+}
+
+func ApplyAllFiles(files *kit.Stack, fn FileFunc) error {
+	for files.Len() > 0 {
+		path := files.Pop()
+		semaphore.Add(1)
+		go func() {
+			defer semaphore.Done()
+			printPath(path.(string))
+			err := fn(path.(string))
+			if err != nil {
+				fmt.Printf("\n[*]Error: %s", err.Error())
+				files.Clear()
+			}
+		}()
+	}
+	semaphore.Wait()
+	OperationCompleted()
+	return nil
+}
+
+func printPath(path string) {
+	path = filepath.ToSlash(path)
+	arr := strings.Split(path, "/")
+	if len(arr) > 2 {
+		path = arr[len(arr)-2] + "/" + arr[len(arr)-1]
+	}
+	fmt.Printf("\n[*]processing file:%s", path)
+}
+
+func OperationCompleted() {
+	fmt.Printf("\n[*]Operation Completed\n")
+}
+
+func ArgumentMissing() {
+	fmt.Println("Error: required arguments not provided.")
+	fmt.Println("For more information try --help")
+}
 func CheckErr(err error) {
 	if err != nil {
 		panic(err)

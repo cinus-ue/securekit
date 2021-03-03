@@ -25,8 +25,7 @@ var Rnm = &cli.Command{
 }
 
 func RnmEncAction(*cli.Context) error {
-	source := util.GetInput("Please enter path to scan:")
-	files, err := kit.PathScan(source, false)
+	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), false)
 	if err != nil {
 		return err
 	}
@@ -35,16 +34,14 @@ func RnmEncAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	defer db.Save()
-	err = ApplyOrderedFiles(files, func(path string) error {
+	err = util.ApplyOrderedFiles(files, func(path string) error {
 		return kit.Rename(path, password, db)
 	})
 	return err
 }
 
 func RnmDecAction(*cli.Context) error {
-	source := util.GetInput("Please enter path to scan:")
-	files, err := kit.PathScan(source, false)
+	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), false)
 	if err != nil {
 		return err
 	}
@@ -53,7 +50,7 @@ func RnmDecAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	err = ApplyOrderedFiles(files, func(path string) error {
+	err = util.ApplyOrderedFiles(files, func(path string) error {
 		return kit.Recover(path, password, db)
 	})
 	return err

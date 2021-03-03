@@ -2,6 +2,7 @@ package kit
 
 import (
 	"encoding/base64"
+	"errors"
 	"os"
 	"strings"
 
@@ -64,6 +65,7 @@ func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
 		if err != nil {
 			return err
 		}
+		return db.Delete(id)
 	}
-	return nil
+	return errors.New("ID not found in Database")
 }

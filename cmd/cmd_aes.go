@@ -39,14 +39,12 @@ var Aes = &cli.Command{
 
 func AESEncAction(c *cli.Context) error {
 	var del = c.Bool("del")
-	source := util.GetInput("Please enter path to scan:")
-
-	files, err := kit.PathScan(source, true)
+	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
 		return err
 	}
 	password := util.GetEncPassword()
-	err = ApplyAllFiles(files, func(path string) error {
+	err = util.ApplyAllFiles(files, func(path string) error {
 		return kit.AESFileEncrypt(path, password, del)
 	})
 	return err
@@ -54,14 +52,12 @@ func AESEncAction(c *cli.Context) error {
 
 func AESDecAction(c *cli.Context) error {
 	var del = c.Bool("del")
-	source := util.GetInput("Please enter path to scan:")
-
-	files, err := kit.PathScan(source, true)
+	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
 		return err
 	}
 	password := util.GetDecPassword()
-	err = ApplyAllFiles(files, func(path string) error {
+	err = util.ApplyAllFiles(files, func(path string) error {
 		return kit.AESFileDecrypt(path, password, del)
 	})
 	return err

@@ -22,6 +22,7 @@ func main() {
 		cmd.Rsa,
 		cmd.Msg,
 		cmd.Stg,
+		cmd.Dbm,
 	}
 	err := app.Run(os.Args)
 	util.CheckErr(err)
