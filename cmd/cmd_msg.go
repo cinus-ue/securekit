@@ -33,7 +33,7 @@ func MsgEncAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("\n[*]Encrypted Output->%s\n", base64.StdEncoding.EncodeToString(ciphertext))
+	fmt.Println("[*]Encrypted Output->", base64.StdEncoding.EncodeToString(ciphertext))
 	return nil
 }
 
@@ -47,6 +47,6 @@ func MsgDecAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("\n[*]Decrypted Output->%s\n", plaintext)
+	fmt.Println("[*]Decrypted Output->", plaintext)
 	return nil
 }

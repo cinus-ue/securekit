@@ -36,6 +36,7 @@ func GetEncPassword() []byte {
 		fmt.Print("\nPasswords do not match. Please try again.\n")
 		return GetEncPassword()
 	}
+	fmt.Print("\n")
 	return password
 }
 
@@ -46,6 +47,7 @@ func GetDecPassword() []byte {
 		fmt.Print("\nIncorrect password. Please try again.\n")
 		return GetDecPassword()
 	}
+	fmt.Print("\n")
 	return password
 }
 
@@ -110,7 +112,7 @@ func ApplyAllFiles(files *kit.Stack, fn FileFunc) error {
 			printPath(path.(string))
 			err := fn(path.(string))
 			if err != nil {
-				fmt.Printf("\n[*]Error: %s", err.Error())
+				fmt.Println("[*]Error:", err.Error())
 				files.Clear()
 			}
 		}()
@@ -126,11 +128,11 @@ func printPath(path string) {
 	if len(arr) > 2 {
 		path = arr[len(arr)-2] + "/" + arr[len(arr)-1]
 	}
-	fmt.Printf("\n[*]processing file:%s", path)
+	fmt.Println("[*]processing file:", path)
 }
 
 func OperationCompleted() {
-	fmt.Printf("\n[*]Operation Completed\n")
+	fmt.Println("[*]Operation Completed")
 }
 
 func ArgumentMissing() {
