@@ -38,12 +38,11 @@ func MsgEncAction(*cli.Context) error {
 }
 
 func MsgDecAction(*cli.Context) error {
-	message := util.GetInput("Paste the encrypted text here to decrypt:")
-	password := util.GetDecPassword()
-	ciphertext, err := base64.StdEncoding.DecodeString(message)
+	ciphertext, err := base64.StdEncoding.DecodeString(util.GetInput("Paste the encrypted text here to decrypt:"))
 	if err != nil {
 		return err
 	}
+	password := util.GetDecPassword()
 	plaintext, err := kit.SktMsgDecrypt(ciphertext, password)
 	if err != nil {
 		return err

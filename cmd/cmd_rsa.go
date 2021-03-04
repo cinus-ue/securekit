@@ -94,7 +94,7 @@ func SignAction(*cli.Context) error {
 		return err
 	}
 	signature, err := rsa.Sign(digest, prk)
-	fmt.Printf("[*]Signature->%s\n", signature)
+	fmt.Println("[*]Signature:", signature)
 	return nil
 }
 
@@ -111,7 +111,7 @@ func VerifyAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("[*]Signature valid->%t\n", ret)
+	fmt.Println("[*]Signature valid:", ret)
 	return nil
 }
 

@@ -137,6 +137,7 @@ func ArgumentMissing() {
 	fmt.Println("Error: required arguments not provided.")
 	fmt.Println("For more information try --help")
 }
+
 func CheckErr(err error) {
 	if err != nil {
 		panic(err)

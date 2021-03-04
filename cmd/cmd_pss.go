@@ -21,6 +21,6 @@ func PassAction(*cli.Context) error {
 		return err
 	}
 	password := pass.GenerateRandomString(true, true, length)
-	fmt.Printf("Your new password is: %s\n", password)
+	fmt.Println("Your new password is:", password)
 	return nil
 }

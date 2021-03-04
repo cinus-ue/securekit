@@ -18,17 +18,11 @@ var Wmk = &cli.Command{
 }
 
 func WmkAction(c *cli.Context) error {
-	var space = 60
-	var fontSize, opacity, angle float64 = 24, 0.8, 30
+	var args = []float64{60, 24, 0.8, 30}
 	if c.Args().Present() {
-		if c.Args().Len() != 4 {
-			util.ArgumentMissing()
-			return nil
+		for i := 0; i < c.Args().Len(); i++ {
+			args[i], _ = strconv.ParseFloat(c.Args().Get(i), 64)
 		}
-		space, _ = strconv.Atoi(c.Args().Get(0))
-		fontSize, _ = strconv.ParseFloat(c.Args().Get(1), 64)
-		opacity, _ = strconv.ParseFloat(c.Args().Get(2), 64)
-		angle, _ = strconv.ParseFloat(c.Args().Get(3), 64)
 	}
 	image, err := os.Open(util.GetInput("Please enter the path of the image:"))
 	if err != nil {
@@ -36,7 +30,7 @@ func WmkAction(c *cli.Context) error {
 	}
 	defer image.Close()
 	text := util.GetInput("Please enter the watermark text:")
-	wmk, err := img.Watermark(image, text, space, fontSize, opacity, angle)
+	wmk, err := img.Watermark(image, text, int(args[0]), args[1], args[2], args[3])
 	if err != nil {
 		return err
 	}
