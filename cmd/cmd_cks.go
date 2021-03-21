@@ -15,7 +15,7 @@ import (
 
 var Cks = &cli.Command{
 	Name:  "cks",
-	Usage: "MD5 & SHA checksum utility",
+	Usage: "Generate Text & File checksum",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "text",

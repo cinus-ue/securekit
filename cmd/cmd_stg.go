@@ -15,22 +15,22 @@ import (
 
 var Stg = &cli.Command{
 	Name:  "stg",
-	Usage: "Hide secret messages inside an image",
+	Usage: "Hide secret file inside an image",
 	Subcommands: []*cli.Command{
 		{
-			Name:   "hide",
-			Usage:  "Hide the data (file) inside an image",
-			Action: HideAction,
+			Name:   "enc",
+			Usage:  "Encode the data (file) inside an image",
+			Action: StgEncAction,
 		},
 		{
-			Name:   "extract",
-			Usage:  "Extract the data (file) from an image",
-			Action: ExtractAction,
+			Name:   "dec",
+			Usage:  "Decode the data (file) from an image",
+			Action: StgDecAction,
 		},
 	},
 }
 
-func HideAction(*cli.Context) error {
+func StgEncAction(*cli.Context) error {
 	image, err := os.Open(util.GetInput("Please enter the path of the cover image:"))
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func HideAction(*cli.Context) error {
 	return nil
 }
 
-func ExtractAction(*cli.Context) error {
+func StgDecAction(*cli.Context) error {
 	in, err := os.Open(util.GetInput("Please enter the path of the stego file:"))
 	if err != nil {
 		return err

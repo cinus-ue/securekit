@@ -13,12 +13,12 @@ var Rnm = &cli.Command{
 	Subcommands: []*cli.Command{
 		{
 			Name:   "enc",
-			Usage:  "Rename files and folders using the AES-256-GCM",
+			Usage:  "Rename files and folders",
 			Action: RnmEncAction,
 		},
 		{
 			Name:   "dec",
-			Usage:  "Recover files and folders using the AES-256-GCM",
+			Usage:  "Recover files and folders",
 			Action: RnmDecAction,
 		},
 	},

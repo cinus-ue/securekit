@@ -11,7 +11,7 @@ import (
 
 var Dbm = &cli.Command{
 	Name:  "dbm",
-	Usage: "Securekit database manager",
+	Usage: "Manage securekit database",
 	Subcommands: []*cli.Command{
 		{
 			Name:      "set",
