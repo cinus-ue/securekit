@@ -19,11 +19,11 @@ func main() {
 		cmd.Dbm,
 		cmd.Msg,
 		cmd.Pss,
-		cmd.Wmk,
 		cmd.Rnm,
 		cmd.Rsa,
 		cmd.Stg,
 		cmd.Vis,
+		cmd.Wmk,
 		cmd.Zip,
 	}
 	err := app.Run(os.Args)
