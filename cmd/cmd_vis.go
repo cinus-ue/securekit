@@ -8,7 +8,7 @@ import (
 
 var Vis = &cli.Command{
 	Name:  "vis",
-	Usage: "Set Hidden attribute of files and folders",
+	Usage: "Hide the files and folders",
 	Subcommands: []*cli.Command{
 		{
 			Name:      "hide",

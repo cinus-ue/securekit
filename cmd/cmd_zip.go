@@ -8,7 +8,7 @@ import (
 
 var Zip = &cli.Command{
 	Name:  "zip",
-	Usage: "Compress or expand files",
+	Usage: "Compress (zip) and uncompress (unzip) files",
 	Subcommands: []*cli.Command{
 		{
 			Name:      "archive",

@@ -15,7 +15,7 @@ import (
 
 var Stg = &cli.Command{
 	Name:  "stg",
-	Usage: "Hide secret file inside an image",
+	Usage: "Embed secret file inside an image",
 	Subcommands: []*cli.Command{
 		{
 			Name:   "enc",
