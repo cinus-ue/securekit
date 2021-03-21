@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"syscall"
 )
 
 func SaveFile(path string, data []byte) error {
@@ -60,18 +59,4 @@ func GetFileName(path string) string {
 	return filepath.Base(path)
 }
 
-func HidePath(path string) error {
-	name, err := syscall.UTF16PtrFromString(path)
-	if err != nil {
-		return err
-	}
-	return syscall.SetFileAttributes(name, syscall.FILE_ATTRIBUTE_HIDDEN)
-}
 
-func ShowPath(path string) error {
-	name, err := syscall.UTF16PtrFromString(path)
-	if err != nil {
-		return err
-	}
-	return syscall.SetFileAttributes(name, syscall.FILE_ATTRIBUTE_NORMAL)
-}
