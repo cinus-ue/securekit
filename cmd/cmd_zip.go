@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/cinus-ue/securekit/kit/cmp"
+	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
@@ -30,7 +30,7 @@ func ArchiveZipAction(c *cli.Context) error {
 		util.ArgumentMissing()
 		return nil
 	}
-	return cmp.CompressDir(c.Args().Get(0), c.Args().Get(1))
+	return kit.CompressDir(c.Args().Get(0), c.Args().Get(1))
 }
 
 func ExtractZipAction(c *cli.Context) error {
@@ -38,5 +38,5 @@ func ExtractZipAction(c *cli.Context) error {
 		util.ArgumentMissing()
 		return nil
 	}
-	return cmp.DecompressDir(c.Args().Get(0), c.Args().Get(1))
+	return kit.DecompressDir(c.Args().Get(0), c.Args().Get(1))
 }

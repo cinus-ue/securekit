@@ -1,12 +1,13 @@
-package kit
+package path
 
 import (
 	"bytes"
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
+
+	"github.com/cinus-ue/securekit/kit/stack"
 )
 
 func SaveFile(path string, data []byte) error {
@@ -29,8 +30,8 @@ func ValidateFile(file string) bool {
 	return true
 }
 
-func PathScan(path string, skipDir bool) (*Stack, error) {
-	files := NewStack()
+func Scan(path string, skipDir bool) (*stack.Stack, error) {
+	files := stack.NewStack()
 	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
@@ -45,12 +46,7 @@ func PathScan(path string, skipDir bool) (*Stack, error) {
 }
 
 func GetBasePath(path string) string {
-	var i int
-	if runtime.GOOS == "windows" {
-		i = strings.LastIndex(path, "\\")
-	} else {
-		i = strings.LastIndex(path, "/")
-	}
+	var i = strings.LastIndex(path, string(os.PathSeparator))
 	path = path[0 : i+1]
 	return path
 }
@@ -58,5 +54,3 @@ func GetBasePath(path string) string {
 func GetFileName(path string) string {
 	return filepath.Base(path)
 }
-
-

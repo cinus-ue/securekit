@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/kit/path"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
@@ -39,7 +40,7 @@ var Aes = &cli.Command{
 
 func AESEncAction(c *cli.Context) error {
 	var del = c.Bool("del")
-	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), true)
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func AESEncAction(c *cli.Context) error {
 
 func AESDecAction(c *cli.Context) error {
 	var del = c.Bool("del")
-	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), true)
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
 		return err
 	}

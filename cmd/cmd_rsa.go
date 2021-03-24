@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/kit/path"
 	"github.com/cinus-ue/securekit/kit/rsa"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
@@ -60,7 +61,7 @@ var Rsa = &cli.Command{
 
 func EncAction(c *cli.Context) error {
 	var del = c.Bool("del")
-	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), true)
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
 		return err
 	}
@@ -73,7 +74,7 @@ func EncAction(c *cli.Context) error {
 
 func DecAction(c *cli.Context) error {
 	var del = c.Bool("del")
-	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), true)
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
 		return err
 	}

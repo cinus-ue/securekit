@@ -10,8 +10,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/kit/sema"
+	"github.com/cinus-ue/securekit/kit/stack"
 	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
@@ -90,7 +90,7 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 	return str
 }
 
-func ApplyOrderedFiles(files *kit.Stack, fn FileFunc) error {
+func ApplyOrderedFiles(files *stack.Stack, fn FileFunc) error {
 	for files.Len() > 0 {
 		path := files.Pop()
 		printPath(path.(string))
@@ -103,7 +103,7 @@ func ApplyOrderedFiles(files *kit.Stack, fn FileFunc) error {
 	return nil
 }
 
-func ApplyAllFiles(files *kit.Stack, fn FileFunc) error {
+func ApplyAllFiles(files *stack.Stack, fn FileFunc) error {
 	for files.Len() > 0 {
 		path := files.Pop()
 		semaphore.Add(1)

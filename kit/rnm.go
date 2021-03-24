@@ -8,13 +8,13 @@ import (
 
 	"github.com/cinus-ue/securekit/kit/aes"
 	"github.com/cinus-ue/securekit/kit/kvdb"
-	"github.com/cinus-ue/securekit/kit/pass"
+	"github.com/cinus-ue/securekit/kit/path"
 )
 
 const RnmVersion = "SKTRNMV1"
 
 func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
-	fileName := GetFileName(source)
+	fileName := path.GetFileName(source)
 	if strings.HasPrefix(fileName, RnmVersion) {
 		return nil
 	}
@@ -29,9 +29,9 @@ func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
 	}
 
 	name := base64.URLEncoding.EncodeToString(ciphertext)
-	id := RnmVersion + pass.GenerateRandomString(false, false, 20)
+	id := RnmVersion + GenerateRandomString(false, false, 20)
 
-	err = os.Rename(source, GetBasePath(source)+id)
+	err = os.Rename(source, path.GetBasePath(source)+id)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
 }
 
 func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
-	id := GetFileName(source)
+	id := path.GetFileName(source)
 	if !strings.HasPrefix(id, RnmVersion) {
 		return nil
 	}
@@ -60,7 +60,7 @@ func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
 			return err
 		}
 
-		fileName = GetBasePath(source) + string(plaintext)
+		fileName = path.GetBasePath(source) + string(plaintext)
 		err = os.Rename(source, fileName)
 		if err != nil {
 			return err

@@ -17,12 +17,11 @@ func main() {
 		cmd.Aes,
 		cmd.Cks,
 		cmd.Dbm,
+		cmd.Lsb,
 		cmd.Msg,
 		cmd.Pss,
 		cmd.Rnm,
 		cmd.Rsa,
-		cmd.Stg,
-		cmd.Vis,
 		cmd.Wmk,
 		cmd.Zip,
 	}

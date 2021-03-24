@@ -1,9 +1,6 @@
 package img
 
 import (
-	"github.com/disintegration/imaging"
-	"github.com/golang/freetype"
-	"golang.org/x/image/font/gofont/goregular"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -11,6 +8,10 @@ import (
 	"io"
 	"math"
 	"os"
+
+	"github.com/disintegration/imaging"
+	"github.com/golang/freetype"
+	"golang.org/x/image/font/gofont/goregular"
 )
 
 type Wmk struct {

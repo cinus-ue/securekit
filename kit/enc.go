@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/cinus-ue/securekit/kit/aes"
-	"github.com/cinus-ue/securekit/kit/pass"
 	"github.com/cinus-ue/securekit/kit/rsa"
 )
 
@@ -100,7 +99,7 @@ func RSAFileEncrypt(source string, key string, delete bool) error {
 	if err != nil {
 		return err
 	}
-	password, err := pass.GenerateRandomBytes(20)
+	password, err := GenerateRandomBytes(20)
 	if err != nil {
 		return err
 	}

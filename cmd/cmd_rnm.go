@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/kit/kvdb"
+	"github.com/cinus-ue/securekit/kit/path"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
@@ -25,7 +26,7 @@ var Rnm = &cli.Command{
 }
 
 func RnmEncAction(*cli.Context) error {
-	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), false)
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), false)
 	if err != nil {
 		return err
 	}
@@ -41,7 +42,7 @@ func RnmEncAction(*cli.Context) error {
 }
 
 func RnmDecAction(*cli.Context) error {
-	files, err := kit.PathScan(util.GetInput("Please enter path to scan:"), false)
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), false)
 	if err != nil {
 		return err
 	}

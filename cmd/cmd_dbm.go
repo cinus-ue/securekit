@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/kit/kvdb"
+	"github.com/cinus-ue/securekit/kit/path"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
@@ -108,7 +108,7 @@ func DumpAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return kit.SaveFile(c.Args().Get(0), data)
+	return path.SaveFile(c.Args().Get(0), data)
 }
 
 func KeysAction(c *cli.Context) error {

@@ -7,30 +7,30 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/kit/img"
+	"github.com/cinus-ue/securekit/kit/path"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
 
-var Stg = &cli.Command{
-	Name:  "stg",
-	Usage: "Embed secret file inside an image",
+var Lsb = &cli.Command{
+	Name:  "lsb",
+	Usage: "LSB (Least Significant Bit) based steganography",
 	Subcommands: []*cli.Command{
 		{
 			Name:   "enc",
 			Usage:  "Encode the data (file) inside an image",
-			Action: StgEncAction,
+			Action: LsbEncAction,
 		},
 		{
 			Name:   "dec",
 			Usage:  "Decode the data (file) from an image",
-			Action: StgDecAction,
+			Action: LsbDecAction,
 		},
 	},
 }
 
-func StgEncAction(*cli.Context) error {
+func LsbEncAction(*cli.Context) error {
 	image, err := os.Open(util.GetInput("Please enter the path of the cover image:"))
 	if err != nil {
 		return err
@@ -48,7 +48,7 @@ func StgEncAction(*cli.Context) error {
 		image.Close()
 		out.Close()
 	}()
-	filename := kit.GetFileName(msgPath)
+	filename := path.GetFileName(msgPath)
 	payload = assemble(payload, []byte(filename))
 	fmt.Println("[*]Encoding and saving the image...")
 	err = img.LSBEncoder(out, image, payload)
@@ -60,7 +60,7 @@ func StgEncAction(*cli.Context) error {
 	return nil
 }
 
-func StgDecAction(*cli.Context) error {
+func LsbDecAction(*cli.Context) error {
 	in, err := os.Open(util.GetInput("Please enter the path of the stego file:"))
 	if err != nil {
 		return err

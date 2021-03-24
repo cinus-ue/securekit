@@ -1,6 +1,6 @@
 // +build windows
 
-package kit
+package path
 
 import "syscall"
 

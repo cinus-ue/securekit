@@ -1,4 +1,4 @@
-package kit
+package stack
 
 import (
 	"container/list"
