@@ -47,6 +47,6 @@ func MsgDecAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("[*]Decrypted Output->", plaintext)
+	fmt.Println("[*]Decrypted Output->", string(plaintext))
 	return nil
 }
