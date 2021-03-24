@@ -13,7 +13,7 @@ var Aes = &cli.Command{
 	Subcommands: []*cli.Command{
 		{
 			Name:  "enc",
-			Usage: "Encrypt the input data using AES-256-CTR",
+			Usage: "Encrypt the data (file) using AES-256-CTR",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
 					Name:    "del",
@@ -25,7 +25,7 @@ var Aes = &cli.Command{
 		},
 		{
 			Name:  "dec",
-			Usage: "Decrypt the input data using AES-256-CTR",
+			Usage: "Decrypt the data (file) using AES-256-CTR",
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
 					Name:    "del",
