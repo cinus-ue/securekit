@@ -14,7 +14,7 @@ import (
 const RnmVersion = "SKTRNMV1"
 
 func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
-	fileName := path.GetFileName(source)
+	fileName := path.Name(source)
 	if strings.HasPrefix(fileName, RnmVersion) {
 		return nil
 	}
@@ -22,24 +22,20 @@ func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
 	if err != nil {
 		return err
 	}
-
 	ciphertext, err := aes.GCMEncrypt([]byte(fileName), dk, salt)
 	if err != nil {
 		return err
 	}
-
-	name := base64.URLEncoding.EncodeToString(ciphertext)
 	id := RnmVersion + GenerateRandomString(false, false, 20)
-
-	err = os.Rename(source, path.GetBasePath(source)+id)
+	err = os.Rename(source, path.BasePath(source)+id)
 	if err != nil {
 		return err
 	}
-	return db.Set(id, name)
+	return db.Set(id, base64.URLEncoding.EncodeToString(ciphertext))
 }
 
 func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
-	id := path.GetFileName(source)
+	id := path.Name(source)
 	if !strings.HasPrefix(id, RnmVersion) {
 		return nil
 	}
@@ -48,19 +44,16 @@ func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
 		if err != nil {
 			return err
 		}
-
 		salt := ciphertext[len(ciphertext)-SaltLen:]
 		dk, _, err := aes.DeriveKey(passphrase, salt, KeyLen)
 		if err != nil {
 			return err
 		}
-
 		plaintext, err := aes.GCMDecrypt(ciphertext, dk, salt)
 		if err != nil {
 			return err
 		}
-
-		fileName = path.GetBasePath(source) + string(plaintext)
+		fileName = path.BasePath(source) + string(plaintext)
 		err = os.Rename(source, fileName)
 		if err != nil {
 			return err

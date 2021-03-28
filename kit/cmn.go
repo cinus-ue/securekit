@@ -7,7 +7,6 @@ import (
 	"crypto/rand"
 	"errors"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -90,19 +89,13 @@ func CompressDir(dir, zipFile string) error {
 	w := zip.NewWriter(fz)
 	defer w.Close()
 
-	files, err := ioutil.ReadDir(dir)
+	f, err := os.Open(dir)
 	if err != nil {
 		return err
 	}
-	for _, v := range files {
-		f, err := os.Open(dir + SEPARATOR + v.Name())
-		if err != nil {
-			return err
-		}
-		err = compress(f, filepath.Base(dir), w)
-		if err != nil {
-			return err
-		}
+	err = compress(f, "skt.archive", w)
+	if err != nil {
+		return err
 	}
 	return nil
 }

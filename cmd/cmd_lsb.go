@@ -48,7 +48,7 @@ func LsbEncAction(*cli.Context) error {
 		image.Close()
 		out.Close()
 	}()
-	filename := path.GetFileName(msgPath)
+	filename := path.Name(msgPath)
 	payload = assemble(payload, []byte(filename))
 	fmt.Println("[*]Encoding and saving the image...")
 	err = img.LSBEncoder(out, image, payload)

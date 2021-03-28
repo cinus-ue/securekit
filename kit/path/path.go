@@ -45,12 +45,12 @@ func Scan(path string, skipDir bool) (*stack.Stack, error) {
 	return files, err
 }
 
-func GetBasePath(path string) string {
+func BasePath(path string) string {
 	var i = strings.LastIndex(path, string(os.PathSeparator))
 	path = path[0 : i+1]
 	return path
 }
 
-func GetFileName(path string) string {
+func Name(path string) string {
 	return filepath.Base(path)
 }
