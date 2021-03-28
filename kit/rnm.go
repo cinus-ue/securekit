@@ -14,15 +14,15 @@ import (
 const RnmVersion = "SKTRNMV1"
 
 func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
-	fileName := path.Name(source)
-	if strings.HasPrefix(fileName, RnmVersion) {
+	name := path.Name(source)
+	if strings.HasPrefix(name, RnmVersion) {
 		return nil
 	}
 	dk, salt, err := aes.DeriveKey(passphrase, nil, KeyLen)
 	if err != nil {
 		return err
 	}
-	ciphertext, err := aes.GCMEncrypt([]byte(fileName), dk, salt)
+	ciphertext, err := aes.GCMEncrypt([]byte(name), dk, salt)
 	if err != nil {
 		return err
 	}
@@ -39,8 +39,8 @@ func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
 	if !strings.HasPrefix(id, RnmVersion) {
 		return nil
 	}
-	if fileName, ok := db.Get(id); ok {
-		ciphertext, err := base64.URLEncoding.DecodeString(fileName)
+	if name, ok := db.Get(id); ok {
+		ciphertext, err := base64.URLEncoding.DecodeString(name)
 		if err != nil {
 			return err
 		}
@@ -53,8 +53,7 @@ func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
 		if err != nil {
 			return err
 		}
-		fileName = path.BasePath(source) + string(plaintext)
-		err = os.Rename(source, fileName)
+		err = os.Rename(source, path.BasePath(source)+string(plaintext))
 		if err != nil {
 			return err
 		}
