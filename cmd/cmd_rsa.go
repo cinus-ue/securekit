@@ -27,7 +27,7 @@ var Rsa = &cli.Command{
 					Usage:   "Delete source file",
 				},
 			},
-			Action: EncAction,
+			Action: RsaEncAction,
 		},
 		{
 			Name:  "dec",
@@ -39,27 +39,27 @@ var Rsa = &cli.Command{
 					Usage:   "Delete source file",
 				},
 			},
-			Action: DecAction,
+			Action: RsaDecAction,
 		},
 		{
 			Name:   "sgt",
 			Usage:  "Sign the data (file) and output the signed result",
-			Action: SignAction,
+			Action: RsaSignAction,
 		},
 		{
 			Name:   "vfy",
 			Usage:  "Verify the signature using an RSA public key",
-			Action: VerifyAction,
+			Action: RsaVerifyAction,
 		},
 		{
 			Name:   "key",
 			Usage:  "Generate RSA keys",
-			Action: KeyAction,
+			Action: RsaKeyAction,
 		},
 	},
 }
 
-func EncAction(c *cli.Context) error {
+func RsaEncAction(c *cli.Context) error {
 	var del = c.Bool("del")
 	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
@@ -72,7 +72,7 @@ func EncAction(c *cli.Context) error {
 	return err
 }
 
-func DecAction(c *cli.Context) error {
+func RsaDecAction(c *cli.Context) error {
 	var del = c.Bool("del")
 	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
@@ -85,7 +85,7 @@ func DecAction(c *cli.Context) error {
 	return err
 }
 
-func SignAction(*cli.Context) error {
+func RsaSignAction(*cli.Context) error {
 	digest, err := kit.Checksum(util.GetInput("Please enter the path of the source file:"), sha256.New())
 	if err != nil {
 		return err
@@ -99,7 +99,7 @@ func SignAction(*cli.Context) error {
 	return nil
 }
 
-func VerifyAction(*cli.Context) error {
+func RsaVerifyAction(*cli.Context) error {
 	digest, err := kit.Checksum(util.GetInput("Please enter the path of the source file:"), sha256.New())
 	if err != nil {
 		return err
@@ -116,7 +116,7 @@ func VerifyAction(*cli.Context) error {
 	return nil
 }
 
-func KeyAction(*cli.Context) error {
+func RsaKeyAction(*cli.Context) error {
 	size, err := strconv.Atoi(util.GetInput("The key size is(1024/2048/4096 bit):"))
 	if err != nil {
 		return err

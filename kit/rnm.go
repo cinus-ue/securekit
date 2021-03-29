@@ -11,7 +11,10 @@ import (
 	"github.com/cinus-ue/securekit/kit/path"
 )
 
-const RnmVersion = "SKTRNMV1"
+const (
+	RnmVersion = "SKTRNMV1"
+	RnmLen     = 30
+)
 
 func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
 	name := path.Name(source)
@@ -26,7 +29,7 @@ func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
 	if err != nil {
 		return err
 	}
-	id := RnmVersion + GenerateRandomString(false, false, 20)
+	id := RnmVersion + GenerateRandomString(false, false, RnmLen)
 	err = os.Rename(source, path.BasePath(source)+id)
 	if err != nil {
 		return err

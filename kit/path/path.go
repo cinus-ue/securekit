@@ -10,6 +10,8 @@ import (
 	"github.com/cinus-ue/securekit/kit/stack"
 )
 
+const Separator = string(os.PathSeparator)
+
 func SaveFile(path string, data []byte) error {
 	f, err := os.Create(path)
 	if err != nil {
@@ -46,9 +48,8 @@ func Scan(path string, skipDir bool) (*stack.Stack, error) {
 }
 
 func BasePath(path string) string {
-	var i = strings.LastIndex(path, string(os.PathSeparator))
-	path = path[0 : i+1]
-	return path
+	var i = strings.LastIndex(path, Separator)
+	return path[0 : i+1]
 }
 
 func Name(path string) string {
