@@ -18,7 +18,6 @@ func main() {
 		cmd.Cks,
 		cmd.Dbm,
 		cmd.Lsb,
-		cmd.Msg,
 		cmd.Pss,
 		cmd.Rnm,
 		cmd.Rsa,

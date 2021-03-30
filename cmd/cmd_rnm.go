@@ -35,10 +35,9 @@ func RnmEncAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	err = util.ApplyOrderedFiles(files, func(path string) error {
+	return util.ApplyOrderedFiles(files, func(path string) error {
 		return kit.Rename(path, password, db)
 	})
-	return err
 }
 
 func RnmDecAction(*cli.Context) error {
@@ -51,8 +50,7 @@ func RnmDecAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	err = util.ApplyOrderedFiles(files, func(path string) error {
+	return util.ApplyOrderedFiles(files, func(path string) error {
 		return kit.Recover(path, password, db)
 	})
-	return err
 }

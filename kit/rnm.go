@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cinus-ue/securekit/kit/aes"
 	"github.com/cinus-ue/securekit/kit/kvdb"
 	"github.com/cinus-ue/securekit/kit/path"
 )
@@ -16,29 +15,25 @@ const (
 	RnmLen     = 30
 )
 
-func Rename(source string, passphrase []byte, db *kvdb.DataBase) error {
-	name := path.Name(source)
+func Rename(filepath string, passphrase []byte, db *kvdb.DataBase) error {
+	name := path.Name(filepath)
 	if strings.HasPrefix(name, RnmVersion) {
 		return nil
 	}
-	dk, salt, err := aes.DeriveKey(passphrase, nil, KeyLen)
-	if err != nil {
-		return err
-	}
-	ciphertext, err := aes.GCMEncrypt([]byte(name), dk, salt)
+	ciphertext, err := SktMsgEncrypt([]byte(name), passphrase)
 	if err != nil {
 		return err
 	}
 	id := RnmVersion + GenerateRandomString(false, false, RnmLen)
-	err = os.Rename(source, path.BasePath(source)+id)
+	err = os.Rename(filepath, path.BasePath(filepath)+id)
 	if err != nil {
 		return err
 	}
 	return db.Set(id, base64.URLEncoding.EncodeToString(ciphertext))
 }
 
-func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
-	id := path.Name(source)
+func Recover(filepath string, passphrase []byte, db *kvdb.DataBase) error {
+	id := path.Name(filepath)
 	if !strings.HasPrefix(id, RnmVersion) {
 		return nil
 	}
@@ -47,16 +42,11 @@ func Recover(source string, passphrase []byte, db *kvdb.DataBase) error {
 		if err != nil {
 			return err
 		}
-		salt := ciphertext[len(ciphertext)-SaltLen:]
-		dk, _, err := aes.DeriveKey(passphrase, salt, KeyLen)
+		plaintext, err := SktMsgDecrypt(ciphertext, passphrase)
 		if err != nil {
 			return err
 		}
-		plaintext, err := aes.GCMDecrypt(ciphertext, dk, salt)
-		if err != nil {
-			return err
-		}
-		err = os.Rename(source, path.BasePath(source)+string(plaintext))
+		err = os.Rename(filepath, path.BasePath(filepath)+string(plaintext))
 		if err != nil {
 			return err
 		}

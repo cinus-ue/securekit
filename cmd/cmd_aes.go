@@ -45,10 +45,9 @@ func AESEncAction(c *cli.Context) error {
 		return err
 	}
 	password := util.GetEncPassword()
-	err = util.ApplyAllFiles(files, func(path string) error {
+	return util.ApplyAllFiles(files, func(path string) error {
 		return kit.AESFileEncrypt(path, password, del)
 	})
-	return err
 }
 
 func AESDecAction(c *cli.Context) error {
@@ -58,8 +57,7 @@ func AESDecAction(c *cli.Context) error {
 		return err
 	}
 	password := util.GetDecPassword()
-	err = util.ApplyAllFiles(files, func(path string) error {
+	return util.ApplyAllFiles(files, func(path string) error {
 		return kit.AESFileDecrypt(path, password, del)
 	})
-	return err
 }

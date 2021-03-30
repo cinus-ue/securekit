@@ -9,10 +9,7 @@ import (
 )
 
 const (
-	SktExt   = ".skt"
-	SaltLen  = 12
-	KeyLen   = 32
-	PSizeLen = 8
+	SktExt = ".skt"
 )
 
 func VersionCheck(src io.Reader, versionRequirement []byte) error {
@@ -34,8 +31,8 @@ func GenerateRandomBytes(n int) ([]byte, error) {
 }
 
 func GenerateRandomString(digit, symbol bool, length int) string {
-	bytes := make([]byte, length)
-	rand.Read(bytes)
+	b := make([]byte, length)
+	rand.Read(b)
 	charset := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	digits := "0123456789"
 	symbols := "~=+%^*/()[]{}/!@#$?|"
@@ -45,11 +42,10 @@ func GenerateRandomString(digit, symbol bool, length int) string {
 	if symbol {
 		charset = charset + symbols
 	}
-
-	for i, b := range bytes {
-		bytes[i] = charset[b%byte(len(charset))]
+	for i, v := range b {
+		b[i] = charset[v%byte(len(charset))]
 	}
-	return string(bytes)
+	return string(b)
 }
 
 func Compress(input []byte) []byte {

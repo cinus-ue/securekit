@@ -66,10 +66,9 @@ func RsaEncAction(c *cli.Context) error {
 		return err
 	}
 	key := util.GetInput("Please enter the path of the public key:")
-	err = util.ApplyAllFiles(files, func(path string) error {
+	return util.ApplyAllFiles(files, func(path string) error {
 		return kit.RSAFileEncrypt(path, key, del)
 	})
-	return err
 }
 
 func RsaDecAction(c *cli.Context) error {
@@ -79,10 +78,9 @@ func RsaDecAction(c *cli.Context) error {
 		return err
 	}
 	key := util.GetInput("Please enter the path of the private key:")
-	err = util.ApplyAllFiles(files, func(path string) error {
+	return util.ApplyAllFiles(files, func(path string) error {
 		return kit.RSAFileDecrypt(path, key, del)
 	})
-	return err
 }
 
 func RsaSignAction(*cli.Context) error {

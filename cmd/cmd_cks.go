@@ -15,7 +15,7 @@ import (
 
 var Cks = &cli.Command{
 	Name:  "cks",
-	Usage: "Generate Text & File checksum",
+	Usage: "Generate text & file checksum",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "text",
@@ -28,55 +28,60 @@ var Cks = &cli.Command{
 			Usage:   "Generate hash (checksum) value for a file",
 		},
 	},
-	Action: CksAction,
+	ArgsUsage: "TEXT/FILE_PATH",
+	Action:    CksAction,
 }
 
 func CksAction(c *cli.Context) error {
-	var file = c.Bool("file")
-
-	switch {
-	case file:
-		path := util.GetInput("Please enter the path of the source file:")
+	if c.Bool("file") {
+		var path = c.Args().Get(0)
+		if path == "" {
+			path = util.GetInput("Please enter the path of the source file:")
+		}
 		fmt.Print("Hash method:\n  1--Md5\n  2--SHA1\n  3--SHA256\n  4--SHA384\n  5--SHA512\n")
 		algo := util.GetInput("select the appropriate number [1-5]:")
 		switch algo {
 		case "1":
-			ret32, err := kit.Checksum(path, md5.New())
+			sum32, err := kit.Checksum(path, md5.New())
 			if err != nil {
 				return err
 			}
-			fmt.Println("[*]Md5-16->", hex.EncodeToString(ret32)[8:24])
-			fmt.Println("[*]Md5-32->", hex.EncodeToString(ret32))
+			fmt.Println("[*]Md5-16->", hex.EncodeToString(sum32)[8:24])
+			fmt.Println("[*]Md5-32->", hex.EncodeToString(sum32))
 		case "2":
-			ret1, err := kit.Checksum(path, sha1.New())
+			sum1, err := kit.Checksum(path, sha1.New())
 			if err != nil {
 				return err
 			}
-			fmt.Println("[*]SHA1->", hex.EncodeToString(ret1))
+			fmt.Println("[*]SHA1->", hex.EncodeToString(sum1))
 		case "3":
-			ret256, err := kit.Checksum(path, sha256.New())
+			sum256, err := kit.Checksum(path, sha256.New())
 			if err != nil {
 				return err
 			}
-			fmt.Println("[*]SHA256->", hex.EncodeToString(ret256))
+			fmt.Println("[*]SHA256->", hex.EncodeToString(sum256))
 		case "4":
-			ret384, err := kit.Checksum(path, sha512.New384())
+			sum384, err := kit.Checksum(path, sha512.New384())
 			if err != nil {
 				return err
 			}
-			fmt.Println("[*]SHA384->", hex.EncodeToString(ret384))
+			fmt.Println("[*]SHA384->", hex.EncodeToString(sum384))
 		case "5":
-			ret512, err := kit.Checksum(path, sha512.New())
+			sum512, err := kit.Checksum(path, sha512.New())
 			if err != nil {
 				return err
 			}
-			fmt.Println("[*]SHA512->", hex.EncodeToString(ret512))
+			fmt.Println("[*]SHA512->", hex.EncodeToString(sum512))
 		}
-	default:
-		data := []byte(util.GetInput("Please enter a message:"))
-		ret32 := kit.Md532(data)
-		fmt.Println("[*]Md5-16->", hex.EncodeToString(ret32)[8:24])
-		fmt.Println("[*]Md5-32->", hex.EncodeToString(ret32))
+	} else {
+		var text = c.Args().Get(0)
+		if text == "" {
+			text = util.GetInput("Please enter a message:")
+		}
+		data := []byte(text)
+		sum32 := kit.Md532(data)
+		fmt.Println("[*]Md5-16->", hex.EncodeToString(sum32)[8:24])
+		fmt.Println("[*]Md5-32->", hex.EncodeToString(sum32))
 		fmt.Println("[*]SHA1--->", hex.EncodeToString(kit.SHA1(data)))
 		fmt.Println("[*]SHA256->", hex.EncodeToString(kit.SHA256(data)))
 		fmt.Println("[*]SHA384->", hex.EncodeToString(kit.SHA384(data)))
