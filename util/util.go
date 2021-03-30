@@ -3,6 +3,7 @@ package util
 import (
 	"bufio"
 	"bytes"
+	"container/list"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,7 +12,6 @@ import (
 	"syscall"
 
 	"github.com/cinus-ue/securekit/kit/sema"
-	"github.com/cinus-ue/securekit/kit/stack"
 	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
@@ -90,11 +90,10 @@ func ConvertByte2String(byte []byte, charset Charset) string {
 	return str
 }
 
-func ApplyOrderedFiles(files *stack.Stack, fn FileFunc) error {
-	for files.Len() > 0 {
-		path := files.Pop()
-		printPath(path.(string))
-		err := fn(path.(string))
+func ApplyOrderedFiles(files *list.List, fn FileFunc) error {
+	for path := files.Back(); path != nil; path = path.Prev() {
+		printPath(path.Value.(string))
+		err := fn(path.Value.(string))
 		if err != nil {
 			return err
 		}
@@ -103,17 +102,16 @@ func ApplyOrderedFiles(files *stack.Stack, fn FileFunc) error {
 	return nil
 }
 
-func ApplyAllFiles(files *stack.Stack, fn FileFunc) error {
-	for files.Len() > 0 {
-		path := files.Pop()
+func ApplyAllFiles(files *list.List, fn FileFunc) error {
+	for path := files.Back(); path != nil; path = path.Prev() {
 		semaphore.Add(1)
 		go func() {
 			defer semaphore.Done()
-			printPath(path.(string))
-			err := fn(path.(string))
+			printPath(path.Value.(string))
+			err := fn(path.Value.(string))
 			if err != nil {
 				fmt.Println("[*]Error:", err.Error())
-				files.Clear()
+				files.Init()
 			}
 		}()
 	}

@@ -2,12 +2,11 @@ package path
 
 import (
 	"bytes"
+	"container/list"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/cinus-ue/securekit/kit/stack"
 )
 
 const Separator = string(os.PathSeparator)
@@ -32,8 +31,8 @@ func ValidateFile(file string) bool {
 	return true
 }
 
-func Scan(path string, skipDir bool) (*stack.Stack, error) {
-	files := stack.NewStack()
+func Scan(path string, skipDir bool) (*list.List, error) {
+	files := list.New()
 	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
@@ -41,7 +40,7 @@ func Scan(path string, skipDir bool) (*stack.Stack, error) {
 		if skipDir && f.IsDir() {
 			return nil
 		}
-		files.Push(path)
+		files.PushBack(path)
 		return nil
 	})
 	return files, err
