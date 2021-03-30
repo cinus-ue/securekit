@@ -30,28 +30,22 @@ func AESFileEncrypt(filepath string, passphrase []byte, delete bool) error {
 	if err != nil {
 		return err
 	}
-	dk, salt, err := aes.DeriveKey(passphrase, nil, KeyLen)
-	if err != nil {
-		return err
-	}
-	newpath := filepath + SktExt
-
-	dest, err := os.Create(newpath)
+	dk, salt, _ := aes.DeriveKey(passphrase, nil, KeyLen)
+	dest, err := os.Create(filepath + SktExt)
 	if err != nil {
 		return err
 	}
 	dest.Write(SKTAESVersion)
 	dest.Write(salt)
-
 	err = aes.CTREncrypt(src, dest, dk)
 	dest.Close()
 	if err != nil {
-		os.Remove(newpath)
+		os.Remove(dest.Name())
 		return err
 	}
 	src.Close()
 	if delete {
-		os.Remove(filepath)
+		os.Remove(src.Name())
 	}
 	return nil
 }
@@ -68,27 +62,22 @@ func AESFileDecrypt(filepath string, passphrase []byte, delete bool) error {
 	if err != nil {
 		return err
 	}
+	dest, err := os.Create(strings.TrimSuffix(filepath, SktExt))
+	if err != nil {
+		return err
+	}
 	salt := make([]byte, SaltLen)
 	src.Read(salt)
-
-	dk, _, err := aes.DeriveKey(passphrase, salt, KeyLen)
-	if err != nil {
-		return err
-	}
-	newpath := strings.TrimSuffix(filepath, SktExt)
-	dest, err := os.Create(newpath)
-	if err != nil {
-		return err
-	}
+	dk, _, _ := aes.DeriveKey(passphrase, salt, KeyLen)
 	err = aes.CTRDecrypt(src, dest, dk)
 	dest.Close()
 	if err != nil {
-		os.Remove(newpath)
+		os.Remove(dest.Name())
 		return err
 	}
 	src.Close()
 	if delete {
-		os.Remove(filepath)
+		os.Remove(src.Name())
 	}
 	return nil
 }
@@ -105,43 +94,31 @@ func RSAFileEncrypt(filepath, keyfile string, delete bool) error {
 	if err != nil {
 		return err
 	}
-	randpass, err := GenerateRandomBytes(20)
+	passphrase, _ := GenerateRandomBytes(20)
+	dk, salt, _ := aes.DeriveKey(passphrase, nil, KeyLen)
+	pbytes, err := rsa.Encrypt(passphrase, puk)
 	if err != nil {
 		return err
 	}
-	dk, salt, err := aes.DeriveKey(randpass, nil, KeyLen)
+	dest, err := os.Create(filepath + SktExt)
 	if err != nil {
 		return err
 	}
-
-	pbytes, err := rsa.Encrypt(randpass, puk)
-	if err != nil {
-		return err
-	}
-
-	newpath := filepath + SktExt
-	dest, err := os.Create(newpath)
-	if err != nil {
-		return err
-	}
-
 	psize := make([]byte, PSizeLen)
 	binary.BigEndian.PutUint64(psize, uint64(len(pbytes)))
-
 	dest.Write(SKTRSAVersion)
 	dest.Write(psize)
 	dest.Write(pbytes)
 	dest.Write(salt)
-
 	err = aes.CTREncrypt(src, dest, dk)
 	dest.Close()
 	if err != nil {
-		os.Remove(newpath)
+		os.Remove(dest.Name())
 		return err
 	}
 	src.Close()
 	if delete {
-		os.Remove(filepath)
+		os.Remove(src.Name())
 	}
 	return nil
 }
@@ -158,51 +135,40 @@ func RSAFileDecrypt(filepath, keyfile string, delete bool) error {
 	if err != nil {
 		return err
 	}
-
 	err = VersionCheck(src, SKTRSAVersion)
 	if err != nil {
 		return err
 	}
-
 	psize := make([]byte, PSizeLen)
 	src.Read(psize)
 	pbytes := make([]byte, binary.BigEndian.Uint64(psize))
 	src.Read(pbytes)
 	salt := make([]byte, SaltLen)
 	src.Read(salt)
-
-	randpass, err := rsa.Decrypt(pbytes, prk)
+	passphrase, err := rsa.Decrypt(pbytes, prk)
 	if err != nil {
 		return err
 	}
-	dk, _, err := aes.DeriveKey(randpass, salt, KeyLen)
+	dest, err := os.Create(strings.TrimSuffix(filepath, SktExt))
 	if err != nil {
 		return err
 	}
-	newpath := strings.TrimSuffix(filepath, SktExt)
-	dest, err := os.Create(newpath)
-	if err != nil {
-		return err
-	}
+	dk, _, _ := aes.DeriveKey(passphrase, salt, KeyLen)
 	err = aes.CTRDecrypt(src, dest, dk)
 	dest.Close()
 	if err != nil {
-		os.Remove(newpath)
+		os.Remove(dest.Name())
 		return err
 	}
 	src.Close()
 	if delete {
-		os.Remove(filepath)
+		os.Remove(src.Name())
 	}
 	return nil
 }
 
 func SktMsgEncrypt(plaintext, passphrase []byte) ([]byte, error) {
-	dk, salt, err := aes.DeriveKey(passphrase, nil, KeyLen)
-	if err != nil {
-		return nil, err
-	}
-
+	dk, salt, _ := aes.DeriveKey(passphrase, nil, KeyLen)
 	ciphertext, err := aes.GCMEncrypt(plaintext, dk, salt)
 	if err != nil {
 		return nil, err
@@ -212,10 +178,7 @@ func SktMsgEncrypt(plaintext, passphrase []byte) ([]byte, error) {
 
 func SktMsgDecrypt(ciphertext, passphrase []byte) ([]byte, error) {
 	salt := ciphertext[len(ciphertext)-SaltLen:]
-	dk, _, err := aes.DeriveKey(passphrase, salt, KeyLen)
-	if err != nil {
-		return nil, err
-	}
+	dk, _, _ := aes.DeriveKey(passphrase, salt, KeyLen)
 	plaintext, err := aes.GCMDecrypt(ciphertext, dk, salt)
 	if err != nil {
 		return nil, err

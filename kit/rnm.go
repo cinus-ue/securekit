@@ -24,20 +24,20 @@ func Rename(filepath string, passphrase []byte, db *kvdb.DataBase) error {
 	if err != nil {
 		return err
 	}
-	id := RnmVersion + GenerateRandomString(false, false, RnmLen)
-	err = os.Rename(filepath, path.BasePath(filepath)+id)
+	key := RnmVersion + GenerateRandomString(false, false, RnmLen)
+	err = os.Rename(filepath, path.BasePath(filepath)+key)
 	if err != nil {
 		return err
 	}
-	return db.Set(id, base64.URLEncoding.EncodeToString(ciphertext))
+	return db.Set(key, base64.URLEncoding.EncodeToString(ciphertext))
 }
 
 func Recover(filepath string, passphrase []byte, db *kvdb.DataBase) error {
-	id := path.Name(filepath)
-	if !strings.HasPrefix(id, RnmVersion) {
+	key := path.Name(filepath)
+	if !strings.HasPrefix(key, RnmVersion) {
 		return nil
 	}
-	if name, ok := db.Get(id); ok {
+	if name, ok := db.Get(key); ok {
 		ciphertext, err := base64.URLEncoding.DecodeString(name)
 		if err != nil {
 			return err
@@ -50,7 +50,7 @@ func Recover(filepath string, passphrase []byte, db *kvdb.DataBase) error {
 		if err != nil {
 			return err
 		}
-		return db.Delete(id)
+		return db.Delete(key)
 	}
 	return errors.New("ID not found in Database")
 }
