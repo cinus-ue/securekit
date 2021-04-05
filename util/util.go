@@ -104,12 +104,12 @@ func ApplyOrderedFiles(files *list.List, fn FileFunc) error {
 
 func ApplyAllFiles(files *list.List, fn FileFunc) error {
 	for path := files.Back(); path != nil; path = path.Prev() {
-		var name = path.Value.(string)
+		var value = path.Value.(string)
 		semaphore.Add(1)
 		go func() {
 			defer semaphore.Done()
-			printPath(name)
-			err := fn(name)
+			printPath(value)
+			err := fn(value)
 			if err != nil {
 				fmt.Println("[*]Error:", err.Error())
 				files.Init()

@@ -84,7 +84,7 @@ func RsaDecAction(c *cli.Context) error {
 }
 
 func RsaSignAction(*cli.Context) error {
-	digest, err := kit.Checksum(util.GetInput("Please enter the path of the source file:"), sha256.New())
+	digest, err := kit.HashSum(util.GetInput("Please enter the path of the source file:"), sha256.New())
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func RsaSignAction(*cli.Context) error {
 }
 
 func RsaVerifyAction(*cli.Context) error {
-	digest, err := kit.Checksum(util.GetInput("Please enter the path of the source file:"), sha256.New())
+	digest, err := kit.HashSum(util.GetInput("Please enter the path of the source file:"), sha256.New())
 	if err != nil {
 		return err
 	}

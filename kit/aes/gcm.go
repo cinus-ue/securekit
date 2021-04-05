@@ -5,7 +5,7 @@ import (
 	"crypto/cipher"
 )
 
-func GCMEncrypt(plaintext, key, nonce []byte) ([]byte, error) {
+func GCMEncrypt(plaintext, key, salt []byte) ([]byte, error) {
 	cphr, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -16,12 +16,12 @@ func GCMEncrypt(plaintext, key, nonce []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	ciphertext := gcm.Seal(nil, nonce, plaintext, nil)
-	ciphertext = append(ciphertext, nonce...)
+	ciphertext := gcm.Seal(nil, salt, plaintext, nil)
+	ciphertext = append(ciphertext, salt...)
 	return ciphertext, nil
 }
 
-func GCMDecrypt(ciphertext, key, nonce []byte) ([]byte, error) {
+func GCMDecrypt(ciphertext, key, salt []byte) ([]byte, error) {
 	cphr, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func GCMDecrypt(ciphertext, key, nonce []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	plaintext, err := gcm.Open(nil, nonce, ciphertext[:len(ciphertext)-len(nonce)], nil)
+	plaintext, err := gcm.Open(nil, salt, ciphertext[:len(ciphertext)-len(salt)], nil)
 	if err != nil {
 		return nil, err
 	}

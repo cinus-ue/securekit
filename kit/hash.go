@@ -70,7 +70,7 @@ func Pbkdf2Sha256(data, salt string, iterations int) string {
 	return fmt.Sprintf("pbkdf2_sha256$%d$%s$%s", iterations, salt, base64.StdEncoding.EncodeToString(dk))
 }
 
-func Checksum(path string, hash hash.Hash) ([]byte, error) {
+func HashSum(path string, hash hash.Hash) ([]byte, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err

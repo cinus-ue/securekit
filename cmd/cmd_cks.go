@@ -38,36 +38,36 @@ func CksAction(c *cli.Context) error {
 		if path == "" {
 			path = util.GetInput("Please enter the path of the source file:")
 		}
-		fmt.Print("Hash method:\n  1--Md5\n  2--SHA1\n  3--SHA256\n  4--SHA384\n  5--SHA512\n")
+		fmt.Print("Hash Methods:\n  1--Md5\n  2--SHA1\n  3--SHA256\n  4--SHA384\n  5--SHA512\n")
 		algo := util.GetInput("select the appropriate number [1-5]:")
 		switch algo {
 		case "1":
-			sum32, err := kit.Checksum(path, md5.New())
+			sum32, err := kit.HashSum(path, md5.New())
 			if err != nil {
 				return err
 			}
 			fmt.Println("[*]Md5-16->", hex.EncodeToString(sum32)[8:24])
 			fmt.Println("[*]Md5-32->", hex.EncodeToString(sum32))
 		case "2":
-			sum1, err := kit.Checksum(path, sha1.New())
+			sum1, err := kit.HashSum(path, sha1.New())
 			if err != nil {
 				return err
 			}
 			fmt.Println("[*]SHA1->", hex.EncodeToString(sum1))
 		case "3":
-			sum256, err := kit.Checksum(path, sha256.New())
+			sum256, err := kit.HashSum(path, sha256.New())
 			if err != nil {
 				return err
 			}
 			fmt.Println("[*]SHA256->", hex.EncodeToString(sum256))
 		case "4":
-			sum384, err := kit.Checksum(path, sha512.New384())
+			sum384, err := kit.HashSum(path, sha512.New384())
 			if err != nil {
 				return err
 			}
 			fmt.Println("[*]SHA384->", hex.EncodeToString(sum384))
 		case "5":
-			sum512, err := kit.Checksum(path, sha512.New())
+			sum512, err := kit.HashSum(path, sha512.New())
 			if err != nil {
 				return err
 			}
