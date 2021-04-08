@@ -93,16 +93,6 @@ func (db *DataBase) Set(key, value string) error {
 
 	oldValue := db.m[key]
 	db.m[key] = value
-
-	// TODO refactor code repetition in Set and Delete functions,
-	// maybe we need to implement 'transactions':
-	// func (db *DataBase) (operation, payload) error {
-	// 		db.Lock()
-	// 		operation(payload)
-	// 		if mode==disk { db.Save() }
-	// 		revert operation if saving failed
-	// 		db.Unlock()
-	// }
 	if db.mode == Disk {
 		err := db.Save()
 		if err != nil {

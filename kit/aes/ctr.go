@@ -2,36 +2,36 @@ package aes
 
 import (
 	"bufio"
+	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hmac"
 	"crypto/rand"
-	"crypto/sha512"
+	"crypto/sha256"
 	"errors"
 	"io"
 )
 
 const (
 	BufferSize int = 1024 * 1024
-	HmacSize       = sha512.Size
+	hash           = crypto.SHA256
+	HmacSize       = sha256.Size
 )
 
 var ErrInvalidHMAC = errors.New("invalid HMAC")
 
 func CTREncrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
-
 	cphr, err := aes.NewCipher(key)
 	if err != nil {
 		return err
 	}
-
 	iv := make([]byte, cphr.BlockSize())
 	_, err = rand.Read(iv)
 	if err != nil {
 		return err
 	}
 	ctr := cipher.NewCTR(cphr, iv)
-	hc := hmac.New(sha512.New, key)
+	hc := hmac.New(hash.New, key)
 
 	writer := io.MultiWriter(dest, hc)
 	writer.Write(iv)
@@ -43,9 +43,9 @@ func CTREncrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 			return err
 		}
 		if n != 0 {
-			data := make([]byte, n)
-			ctr.XORKeyStream(data, buf[:n])
-			writer.Write(data)
+			out := make([]byte, n)
+			ctr.XORKeyStream(out, buf[:n])
+			writer.Write(out)
 		}
 		if err == io.EOF {
 			break
@@ -57,7 +57,6 @@ func CTREncrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 }
 
 func CTRDecrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
-
 	cphr, err := aes.NewCipher(key)
 	if err != nil {
 		return err
@@ -68,40 +67,35 @@ func CTRDecrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 		return err
 	}
 	ctr := cipher.NewCTR(cphr, iv)
-	hc := hmac.New(sha512.New, key)
+	hc := hmac.New(hash.New, key)
 	hc.Write(iv)
 	mac := make([]byte, HmacSize)
-
-	buf := bufio.NewReaderSize(src, BufferSize)
+	reader := bufio.NewReaderSize(src, BufferSize)
 	var limit int
-	var data []byte
+	var buf []byte
 	for {
-		data, err = buf.Peek(BufferSize)
+		buf, err = reader.Peek(BufferSize)
 		if err != nil && err != io.EOF {
 			return err
 		}
-		limit = len(data) - HmacSize
 		if err == io.EOF {
-			left := buf.Buffered()
+			left := reader.Buffered()
 			if left < HmacSize {
 				return errors.New("not enough left")
 			}
-			copy(mac, data[left-HmacSize:left])
+			copy(mac, buf[left-HmacSize:left])
 			if left == HmacSize {
 				break
 			}
 		}
-		hc.Write(data[:limit])
-		outBuf := make([]byte, int64(limit))
-		buf.Read(data[:limit])
-		ctr.XORKeyStream(outBuf, data[:limit])
-		dest.Write(outBuf)
+		limit = len(buf) - HmacSize
+		hc.Write(buf[:limit])
+		reader.Read(buf[:limit])
+		out := make([]byte, int64(limit))
+		ctr.XORKeyStream(out, buf[:limit])
+		dest.Write(out)
 		if err == io.EOF {
 			break
-		}
-
-		if err != nil {
-			return err
 		}
 	}
 

@@ -127,7 +127,7 @@ func printPath(path string) {
 	if len(arr) > 2 {
 		path = arr[len(arr)-2] + "/" + arr[len(arr)-1]
 	}
-	fmt.Println("[*]processing file:", path)
+	fmt.Println("[*]processing path:", path)
 }
 
 func OperationCompleted() {

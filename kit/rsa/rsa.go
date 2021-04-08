@@ -11,6 +11,8 @@ import (
 	"strconv"
 )
 
+const hash = crypto.SHA256
+
 // RSA encrypt
 func Encrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(publicKey)
@@ -23,13 +25,12 @@ func Encrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 	}
 	puk := pubInterface.(*rsa.PublicKey)
 	segment := (puk.N.BitLen() + 7) / 8
-	hash := crypto.SHA256
 	var start, end int
 	// preventing message too long
 	if segment < 2*hash.Size()+2 {
 		return nil, errors.New("your key length is too short, minimum recommend:" + strconv.Itoa(2*hash.Size()+2))
 	}
-	var data []byte
+	var ciphertext []byte
 	for i := range plaintext {
 		start = i * segment / 2
 		if start+segment/2 < len(plaintext) {
@@ -37,17 +38,16 @@ func Encrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 		} else {
 			end = len(plaintext)
 		}
-		byteSequence := plaintext[start:end]
-		segmentEncrypt, err := rsa.EncryptOAEP(hash.New(), rand.Reader, puk, byteSequence, nil)
+		out, err := rsa.EncryptOAEP(hash.New(), rand.Reader, puk, plaintext[start:end], nil)
 		if err != nil {
 			return nil, err
 		}
-		data = append(data, segmentEncrypt...)
+		ciphertext = append(ciphertext, out...)
 		if end == len(plaintext) {
 			break
 		}
 	}
-	return data, nil
+	return ciphertext, nil
 }
 
 // RSA decrypt
@@ -61,13 +61,12 @@ func Decrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 		return nil, err
 	}
 	segment := (prk.PublicKey.N.BitLen() + 7) / 8
-	hash := crypto.SHA256
 	var start, end int
 	// preventing message too long
 	if segment < 2*hash.Size()+2 {
 		return nil, errors.New("your key length is too short, minimum recommend:" + strconv.Itoa(2*hash.Size()+2))
 	}
-	var data []byte
+	var plaintext []byte
 	for i := range ciphertext {
 		start = i * segment
 		if start+segment < len(ciphertext) {
@@ -75,17 +74,16 @@ func Decrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 		} else {
 			end = len(ciphertext)
 		}
-		segmentEncrypt := ciphertext[start:end]
-		segmentDecrypt, err := rsa.DecryptOAEP(hash.New(), rand.Reader, prk, segmentEncrypt, nil)
+		out, err := rsa.DecryptOAEP(hash.New(), rand.Reader, prk, ciphertext[start:end], nil)
 		if err != nil {
 			return nil, err
 		}
-		data = append(data, segmentDecrypt...)
+		plaintext = append(plaintext, out...)
 		if end == len(ciphertext) {
 			break
 		}
 	}
-	return data, nil
+	return plaintext, nil
 }
 
 // RSA sign
@@ -99,7 +97,7 @@ func Sign(digest, privateKey []byte) (sig string, err error) {
 	if err != nil {
 		return
 	}
-	signature, err := rsa.SignPSS(rand.Reader, prk, crypto.SHA256, digest, nil)
+	signature, err := rsa.SignPSS(rand.Reader, prk, hash, digest, nil)
 	if err != nil {
 		return
 	}
@@ -121,7 +119,7 @@ func Verify(signature string, digest, publicKey []byte) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	err = rsa.VerifyPSS(puk, crypto.SHA256, digest, sig, nil)
+	err = rsa.VerifyPSS(puk, hash, digest, sig, nil)
 	if err != nil {
 		return false, err
 	}
