@@ -47,7 +47,8 @@ func Scan(path string, skipDir bool) (*list.List, error) {
 }
 
 func BasePath(path string) string {
-	var i = strings.LastIndex(path, Separator)
+	path = filepath.ToSlash(path)
+	var i = strings.LastIndex(path, "/")
 	return path[0 : i+1]
 }
 
