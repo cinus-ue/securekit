@@ -33,28 +33,28 @@ var Dsm = &cli.Command{
 			Name:   "rsa-enc",
 			Usage:  "Encrypt the data (file) using an RSA public key",
 			Flags:  flags,
-			Action: RsaEncAction,
+			Action: RSAEncAction,
 		},
 		{
 			Name:   "rsa-dec",
 			Usage:  "Decrypt the data (file) using an RSA private key",
 			Flags:  flags,
-			Action: RsaDecAction,
+			Action: RSADecAction,
 		},
 		{
 			Name:   "rsa-sgt",
 			Usage:  "Sign the data (file) and output the signed result",
-			Action: RsaSignAction,
+			Action: RSASignAction,
 		},
 		{
 			Name:   "rsa-vfy",
 			Usage:  "Verify the signature using an RSA public key",
-			Action: RsaVerifyAction,
+			Action: RSAVerifyAction,
 		},
 		{
 			Name:   "rsa-key",
 			Usage:  "Generate RSA keys",
-			Action: RsaKeyAction,
+			Action: RSAKeyAction,
 		},
 	},
 }
@@ -91,7 +91,7 @@ func AESDecAction(c *cli.Context) error {
 	})
 }
 
-func RsaEncAction(c *cli.Context) error {
+func RSAEncAction(c *cli.Context) error {
 	var del = c.Bool("del")
 	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
@@ -103,7 +103,7 @@ func RsaEncAction(c *cli.Context) error {
 	})
 }
 
-func RsaDecAction(c *cli.Context) error {
+func RSADecAction(c *cli.Context) error {
 	var del = c.Bool("del")
 	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
 	if err != nil {
@@ -115,7 +115,7 @@ func RsaDecAction(c *cli.Context) error {
 	})
 }
 
-func RsaSignAction(*cli.Context) error {
+func RSASignAction(*cli.Context) error {
 	digest, err := kit.HashSum(util.GetInput("Please enter the path of the source file:"), sha256.New())
 	if err != nil {
 		return err
@@ -129,7 +129,7 @@ func RsaSignAction(*cli.Context) error {
 	return nil
 }
 
-func RsaVerifyAction(*cli.Context) error {
+func RSAVerifyAction(*cli.Context) error {
 	digest, err := kit.HashSum(util.GetInput("Please enter the path of the source file:"), sha256.New())
 	if err != nil {
 		return err
@@ -146,7 +146,7 @@ func RsaVerifyAction(*cli.Context) error {
 	return nil
 }
 
-func RsaKeyAction(*cli.Context) error {
+func RSAKeyAction(*cli.Context) error {
 	size, err := strconv.Atoi(util.GetInput("The key size is(1024/2048/4096 bit):"))
 	if err != nil {
 		return err
