@@ -1,4 +1,4 @@
-package rsa
+package security
 
 import (
 	"crypto"
@@ -14,7 +14,7 @@ import (
 const hash = crypto.SHA256
 
 // RSA encrypt
-func Encrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
+func RSAEncrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return nil, errors.New("public key error")
@@ -51,7 +51,7 @@ func Encrypt(plaintext []byte, publicKey []byte) ([]byte, error) {
 }
 
 // RSA decrypt
-func Decrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
+func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
 		return nil, errors.New("private key error")
@@ -87,7 +87,7 @@ func Decrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 }
 
 // RSA sign
-func Sign(digest, privateKey []byte) (sig string, err error) {
+func RSASign(digest, privateKey []byte) (sig string, err error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
 		err = errors.New("private key error")
@@ -105,7 +105,7 @@ func Sign(digest, privateKey []byte) (sig string, err error) {
 }
 
 // RSA verify
-func Verify(signature string, digest, publicKey []byte) (bool, error) {
+func RSAVerify(signature string, digest, publicKey []byte) (bool, error) {
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return false, errors.New("public key error")

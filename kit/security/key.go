@@ -1,12 +1,31 @@
-package rsa
+package security
 
 import (
+	"bytes"
+	"crypto/aes"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/pem"
+	"golang.org/x/crypto/pbkdf2"
+	"io"
 	"os"
 )
+
+func DeriveKey(passphrase, salt []byte, keyLen int) ([]byte, []byte, error) {
+	if salt == nil {
+		salt = make([]byte, 12)
+		// http://www.ietf.org/rfc/rfc2898.txt
+		io.ReadFull(rand.Reader, salt)
+	}
+	switch keyLen {
+	case 16, 24, 32: // AES 128/196/256
+	default:
+		return nil, nil, aes.KeySizeError(keyLen)
+	}
+	return pbkdf2.Key(passphrase, salt, 1000, keyLen, sha256.New), salt, nil
+}
 
 // Generate new RSA keypair
 func GenerateRSAKey(bits int) (*rsa.PrivateKey, error) {
@@ -78,4 +97,16 @@ func DecodePrivateKey(key []byte) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode(key)
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	return privateKey, err
+}
+
+func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
+	padding := blockSize - len(ciphertext)%blockSize
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padtext...)
+}
+
+func PKCS5UnPadding(plaintext []byte) []byte {
+	length := len(plaintext)
+	unpadding := int(plaintext[length-1])
+	return plaintext[:(length - unpadding)]
 }

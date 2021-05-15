@@ -8,55 +8,87 @@ import (
 
 	"github.com/cinus-ue/securekit/kit"
 	"github.com/cinus-ue/securekit/kit/path"
-	"github.com/cinus-ue/securekit/kit/rsa"
+	"github.com/cinus-ue/securekit/kit/security"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
 
-var Rsa = &cli.Command{
-	Name:  "rsa",
-	Usage: "RSA encryption and digital signature",
+var Dsm = &cli.Command{
+	Name:  "dsm",
+	Usage: "Data encryption and digital signature",
 	Subcommands: []*cli.Command{
 		{
-			Name:  "enc",
-			Usage: "Encrypt the data (file) using an RSA public key",
-			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:    "del",
-					Aliases: []string{"d"},
-					Usage:   "Delete source file",
-				},
-			},
+			Name:   "aes-enc",
+			Usage:  "Encrypt the data (file) using AES-256-CTR",
+			Flags:  flags,
+			Action: AESEncAction,
+		},
+		{
+			Name:   "aes-dec",
+			Usage:  "Decrypt the data (file) using AES-256-CTR",
+			Flags:  flags,
+			Action: AESDecAction,
+		},
+		{
+			Name:   "rsa-enc",
+			Usage:  "Encrypt the data (file) using an RSA public key",
+			Flags:  flags,
 			Action: RsaEncAction,
 		},
 		{
-			Name:  "dec",
-			Usage: "Decrypt the data (file) using an RSA private key",
-			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:    "del",
-					Aliases: []string{"d"},
-					Usage:   "Delete source file",
-				},
-			},
+			Name:   "rsa-dec",
+			Usage:  "Decrypt the data (file) using an RSA private key",
+			Flags:  flags,
 			Action: RsaDecAction,
 		},
 		{
-			Name:   "sgt",
+			Name:   "rsa-sgt",
 			Usage:  "Sign the data (file) and output the signed result",
 			Action: RsaSignAction,
 		},
 		{
-			Name:   "vfy",
+			Name:   "rsa-vfy",
 			Usage:  "Verify the signature using an RSA public key",
 			Action: RsaVerifyAction,
 		},
 		{
-			Name:   "key",
+			Name:   "rsa-key",
 			Usage:  "Generate RSA keys",
 			Action: RsaKeyAction,
 		},
 	},
+}
+
+var flags = []cli.Flag{
+	&cli.BoolFlag{
+		Name:    "del",
+		Aliases: []string{"d"},
+		Usage:   "Delete source file",
+	},
+}
+
+func AESEncAction(c *cli.Context) error {
+	var del = c.Bool("del")
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
+	if err != nil {
+		return err
+	}
+	password := util.GetEncPassword()
+	return util.ApplyAllFiles(files, func(path string) error {
+		return kit.AESFileEncrypt(path, password, del)
+	})
+}
+
+func AESDecAction(c *cli.Context) error {
+	var del = c.Bool("del")
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
+	if err != nil {
+		return err
+	}
+	password := util.GetDecPassword()
+	return util.ApplyAllFiles(files, func(path string) error {
+		return kit.AESFileDecrypt(path, password, del)
+	})
 }
 
 func RsaEncAction(c *cli.Context) error {
@@ -92,7 +124,7 @@ func RsaSignAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	signature, err := rsa.Sign(digest, prk)
+	signature, err := security.RSASign(digest, prk)
 	fmt.Println("[*]Signature:", signature)
 	return nil
 }
@@ -106,7 +138,7 @@ func RsaVerifyAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	ret, err := rsa.Verify(util.GetInput("Please enter the signature:"), digest, puk)
+	ret, err := security.RSAVerify(util.GetInput("Please enter the signature:"), digest, puk)
 	if err != nil {
 		return err
 	}
@@ -119,11 +151,11 @@ func RsaKeyAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	privateKey, err := rsa.GenerateRSAKey(size)
+	privateKey, err := security.GenerateRSAKey(size)
 	if err != nil {
 		return err
 	}
-	err = rsa.SaveRSAKey(privateKey)
+	err = security.SaveRSAKey(privateKey)
 	if err != nil {
 		return err
 	}
