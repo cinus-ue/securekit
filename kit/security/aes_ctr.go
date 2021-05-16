@@ -15,8 +15,6 @@ const (
 	hmacHash       = crypto.SHA256
 )
 
-var ErrInvalidHMAC = errors.New("invalid HMAC")
-
 func AESCTREncrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -41,11 +39,7 @@ func AESCTREncrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 			outBuffer := make([]byte, n)
 			ctr.XORKeyStream(outBuffer, buffer[:n])
 			_, _ = writer.Write(outBuffer)
-			tag := hc.Sum(nil)
-			n, err = writer.Write(tag)
-			if err != nil {
-				return err
-			}
+			_, _ = writer.Write(hc.Sum(nil))
 		}
 		if err == io.EOF {
 			break
@@ -79,10 +73,10 @@ func AESCTRDecrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 			hc.Write(buffer[:limit])
 			tag := hc.Sum(nil)
 			if !hmac.Equal(buffer[limit:n], tag) {
-				return ErrInvalidHMAC
+				return errors.New("invalid HMAC")
 			}
 			hc.Write(tag)
-			outBuffer := make([]byte, int64(limit))
+			outBuffer := make([]byte, limit)
 			ctr.XORKeyStream(outBuffer, buffer[:limit])
 			_, _ = dest.Write(outBuffer)
 		}

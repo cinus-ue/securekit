@@ -42,7 +42,7 @@ var Dsm = &cli.Command{
 			Action: RSADecAction,
 		},
 		{
-			Name:   "rsa-sgt",
+			Name:   "rsa-sig",
 			Usage:  "Sign the data (file) and output the signed result",
 			Action: RSASignAction,
 		},
