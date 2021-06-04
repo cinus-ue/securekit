@@ -8,12 +8,11 @@ import (
 	"crypto/rand"
 	"errors"
 	"io"
+
+	"github.com/cinus-ue/securekit/kit/base"
 )
 
-const (
-	bufferSize int = 1024 * 1024
-	hmacHash       = crypto.SHA256
-)
+const hmacHash = crypto.SHA256
 
 func AESCTREncrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 	block, err := aes.NewCipher(key)
@@ -29,7 +28,7 @@ func AESCTREncrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 	hc := hmac.New(hmacHash.New, key)
 	writer := io.MultiWriter(dest, hc)
 	_, _ = writer.Write(iv)
-	buffer := make([]byte, bufferSize)
+	buffer := make([]byte, base.BufferSize)
 	for {
 		n, err := src.Read(buffer)
 		if err != nil && err != io.EOF {
@@ -62,7 +61,7 @@ func AESCTRDecrypt(src io.Reader, dest io.Writer, key []byte) (err error) {
 	hc := hmac.New(hmacHash.New, key)
 	hc.Write(iv)
 	var hmacSize = hmacHash.Size()
-	buffer := make([]byte, bufferSize+hmacSize)
+	buffer := make([]byte, base.BufferSize+hmacSize)
 	for {
 		n, err := src.Read(buffer)
 		if err != nil && err != io.EOF {

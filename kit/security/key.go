@@ -1,7 +1,6 @@
 package security
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/rand"
 	"crypto/rsa"
@@ -12,6 +11,8 @@ import (
 	"io"
 	"os"
 )
+
+const SaltLen = 12
 
 func DeriveKey(passphrase, salt []byte, keyLen int) ([]byte, []byte, error) {
 	if salt == nil {
@@ -97,16 +98,4 @@ func DecodePrivateKey(key []byte) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode(key)
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	return privateKey, err
-}
-
-func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
-}
-
-func PKCS5UnPadding(plaintext []byte) []byte {
-	length := len(plaintext)
-	unpadding := int(plaintext[length-1])
-	return plaintext[:(length - unpadding)]
 }

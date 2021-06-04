@@ -10,16 +10,16 @@ import (
 
 var Rnm = &cli.Command{
 	Name:  "rnm",
-	Usage: "Batch rename files and folders",
+	Usage: "Obfuscate file names and directory names",
 	Subcommands: []*cli.Command{
 		{
 			Name:   "enc",
-			Usage:  "Rename files and folders",
+			Usage:  "Rename file names and directory names",
 			Action: RnmEncAction,
 		},
 		{
 			Name:   "dec",
-			Usage:  "Recover files and folders",
+			Usage:  "Recover file names and directory names",
 			Action: RnmDecAction,
 		},
 	},

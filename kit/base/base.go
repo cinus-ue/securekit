@@ -1,25 +1,13 @@
-package kit
+package base
 
 import (
 	"bytes"
 	"compress/zlib"
 	"crypto/rand"
-	"errors"
 	"io"
 )
 
-const (
-	SktExt = ".skt"
-)
-
-func VersionCheck(src io.Reader, versionRequirement []byte) error {
-	version := make([]byte, len(versionRequirement))
-	_, _ = src.Read(version)
-	if !bytes.Equal(version, versionRequirement) {
-		return errors.New("version mismatch error")
-	}
-	return nil
-}
+const BufferSize = 1024 * 1024
 
 func GenerateRandomBytes(n int) ([]byte, error) {
 	b := make([]byte, n)
@@ -69,4 +57,16 @@ func Decompress(input []byte) ([]byte, error) {
 	r.Close()
 	output := buf.Bytes()
 	return output, nil
+}
+
+func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
+	padding := blockSize - len(ciphertext)%blockSize
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padtext...)
+}
+
+func PKCS5UnPadding(plaintext []byte) []byte {
+	length := len(plaintext)
+	unpadding := int(plaintext[length-1])
+	return plaintext[:(length - unpadding)]
 }

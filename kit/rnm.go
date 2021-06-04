@@ -6,25 +6,26 @@ import (
 	"os"
 	"strings"
 
+	"github.com/cinus-ue/securekit/kit/base"
 	"github.com/cinus-ue/securekit/kit/kvdb"
 	"github.com/cinus-ue/securekit/kit/path"
 )
 
 const (
-	RnmVersion = "SKTRNMV1"
-	RnmLen     = 30
+	rnmVersion = "SKTRNMV1"
+	rnmLen     = 30
 )
 
 func Rename(filepath string, passphrase []byte, db *kvdb.DataBase) error {
 	name := path.Name(filepath)
-	if strings.HasPrefix(name, RnmVersion) {
+	if strings.HasPrefix(name, rnmVersion) {
 		return nil
 	}
 	ciphertext, err := SktMsgEncrypt([]byte(name), passphrase)
 	if err != nil {
 		return err
 	}
-	key := RnmVersion + GenerateRandomString(false, false, RnmLen)
+	key := rnmVersion + base.GenerateRandomString(false, false, rnmLen)
 	err = os.Rename(filepath, path.BasePath(filepath)+key)
 	if err != nil {
 		return err
@@ -34,7 +35,7 @@ func Rename(filepath string, passphrase []byte, db *kvdb.DataBase) error {
 
 func Recover(filepath string, passphrase []byte, db *kvdb.DataBase) error {
 	key := path.Name(filepath)
-	if !strings.HasPrefix(key, RnmVersion) {
+	if !strings.HasPrefix(key, rnmVersion) {
 		return nil
 	}
 	if name, ok := db.Get(key); ok {

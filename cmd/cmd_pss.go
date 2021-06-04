@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/kit/base"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
@@ -20,7 +20,7 @@ func PassAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	password := kit.GenerateRandomString(true, true, length)
+	password := base.GenerateRandomString(true, true, length)
 	fmt.Println("Your new password is:", password)
 	return nil
 }

@@ -19,15 +19,27 @@ var Dsm = &cli.Command{
 	Subcommands: []*cli.Command{
 		{
 			Name:   "aes-enc",
-			Usage:  "Encrypt the data (file) using AES-256-CTR",
+			Usage:  "Encrypt the data (file) using AES-256-CTR algorithm",
 			Flags:  flags,
 			Action: AESEncAction,
 		},
 		{
 			Name:   "aes-dec",
-			Usage:  "Decrypt the data (file) using AES-256-CTR",
+			Usage:  "Decrypt the data (file) using AES-256-CTR algorithm",
 			Flags:  flags,
 			Action: AESDecAction,
+		},
+		{
+			Name:   "rc4-enc",
+			Usage:  "Encrypt the data (file) using RC4 algorithm",
+			Flags:  flags,
+			Action: RC4EncAction,
+		},
+		{
+			Name:   "rc4-dec",
+			Usage:  "Decrypt the data (file) using RC4 algorithm",
+			Flags:  flags,
+			Action: RC4DecAction,
 		},
 		{
 			Name:   "rsa-enc",
@@ -88,6 +100,30 @@ func AESDecAction(c *cli.Context) error {
 	password := util.GetDecPassword()
 	return util.ApplyAllFiles(files, func(path string) error {
 		return kit.AESFileDecrypt(path, password, del)
+	})
+}
+
+func RC4EncAction(c *cli.Context) error {
+	var del = c.Bool("del")
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
+	if err != nil {
+		return err
+	}
+	password := util.GetEncPassword()
+	return util.ApplyAllFiles(files, func(path string) error {
+		return kit.RC4FileEncrypt(path, password, del)
+	})
+}
+
+func RC4DecAction(c *cli.Context) error {
+	var del = c.Bool("del")
+	files, err := path.Scan(util.GetInput("Please enter path to scan:"), true)
+	if err != nil {
+		return err
+	}
+	password := util.GetDecPassword()
+	return util.ApplyAllFiles(files, func(path string) error {
+		return kit.RC4FileDecrypt(path, password, del)
 	})
 }
 
