@@ -9,18 +9,14 @@ import (
 
 const BufferSize = 1024 * 1024
 
-func GenerateRandomBytes(n int) ([]byte, error) {
+func GenerateRandomBytes(n int) []byte {
 	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
+	rand.Read(b)
+	return b
 }
 
 func GenerateRandomString(digit, symbol bool, length int) string {
-	b := make([]byte, length)
-	rand.Read(b)
+	b := GenerateRandomBytes(length)
 	charset := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	digits := "0123456789"
 	symbols := "~=+%^*/()[]{}/!@#$?|"

@@ -1,4 +1,4 @@
-package security
+package rc4
 
 import (
 	"crypto/rc4"

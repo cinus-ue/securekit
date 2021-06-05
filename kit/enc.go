@@ -12,13 +12,14 @@ import (
 	"strings"
 
 	"github.com/cinus-ue/securekit/kit/base"
-	"github.com/cinus-ue/securekit/kit/security"
+	"github.com/cinus-ue/securekit/kit/suite"
+	"github.com/cinus-ue/securekit/kit/suite/rsa"
 )
 
 const (
-	keyLen   = 32
 	pSizeLen = 8
 	sktExt   = ".skt"
+	aesAlgo  = suite.Aes256Ctr
 )
 
 var (
@@ -79,7 +80,7 @@ func RC4FileEncrypt(filepath string, passphrase []byte, delete bool) error {
 	}
 	dest.Write(SKTRC4Version)
 	dest.Write(SHA256(passphrase))
-	err = security.RC4KeyStream(src, dest, passphrase)
+	err = suite.StreamEnc(src, dest, passphrase, suite.RC4)
 	closeFile(src, dest)
 	if err != nil {
 		os.Remove(dest.Name())
@@ -104,7 +105,7 @@ func RC4FileDecrypt(filepath string, passphrase []byte, delete bool) error {
 		os.Remove(dest.Name())
 		return errors.New("wrong passphrase")
 	}
-	err = security.RC4KeyStream(src, dest, passphrase)
+	err = suite.StreamDec(src, dest, passphrase, suite.RC4)
 	closeFile(src, dest)
 	if err != nil {
 		os.Remove(dest.Name())
@@ -122,10 +123,8 @@ func AESFileEncrypt(filepath string, passphrase []byte, delete bool) error {
 	if err != nil {
 		return err
 	}
-	key, salt, _ := security.DeriveKey(passphrase, nil, keyLen)
 	dest.Write(SKTAESVersion)
-	dest.Write(salt)
-	err = security.AESCTREncrypt(src, dest, key)
+	err = suite.StreamEnc(src, dest, passphrase, aesAlgo)
 	closeFile(src, dest)
 	if err != nil {
 		os.Remove(dest.Name())
@@ -143,10 +142,7 @@ func AESFileDecrypt(filepath string, passphrase []byte, delete bool) error {
 	if err != nil {
 		return err
 	}
-	salt := make([]byte, security.SaltLen)
-	src.Read(salt)
-	key, _, _ := security.DeriveKey(passphrase, salt, keyLen)
-	err = security.AESCTRDecrypt(src, dest, key)
+	err = suite.StreamDec(src, dest, passphrase, aesAlgo)
 	closeFile(src, dest)
 	if err != nil {
 		os.Remove(dest.Name())
@@ -168,9 +164,8 @@ func RSAFileEncrypt(filepath, keyfile string, delete bool) error {
 	if err != nil {
 		return err
 	}
-	passphrase, _ := base.GenerateRandomBytes(20)
-	key, salt, _ := security.DeriveKey(passphrase, nil, keyLen)
-	pbytes, err := security.RSAEncrypt(passphrase, puk)
+	passphrase := base.GenerateRandomBytes(20)
+	pbytes, err := rsa.RSAEncrypt(passphrase, puk)
 	if err != nil {
 		return err
 	}
@@ -179,8 +174,7 @@ func RSAFileEncrypt(filepath, keyfile string, delete bool) error {
 	dest.Write(SKTRSAVersion)
 	dest.Write(psize)
 	dest.Write(pbytes)
-	dest.Write(salt)
-	err = security.AESCTREncrypt(src, dest, key)
+	err = suite.StreamEnc(src, dest, passphrase, aesAlgo)
 	closeFile(src, dest)
 	if err != nil {
 		os.Remove(dest.Name())
@@ -206,14 +200,11 @@ func RSAFileDecrypt(filepath, keyfile string, delete bool) error {
 	src.Read(psize)
 	pbytes := make([]byte, binary.BigEndian.Uint64(psize))
 	src.Read(pbytes)
-	salt := make([]byte, security.SaltLen)
-	src.Read(salt)
-	passphrase, err := security.RSADecrypt(pbytes, prk)
+	passphrase, err := rsa.RSADecrypt(pbytes, prk)
 	if err != nil {
 		return err
 	}
-	key, _, _ := security.DeriveKey(passphrase, salt, keyLen)
-	err = security.AESCTRDecrypt(src, dest, key)
+	err = suite.StreamDec(src, dest, passphrase, aesAlgo)
 	closeFile(src, dest)
 	if err != nil {
 		os.Remove(dest.Name())
@@ -221,24 +212,4 @@ func RSAFileDecrypt(filepath, keyfile string, delete bool) error {
 	}
 	deleteFile(src, delete)
 	return nil
-}
-
-func SktMsgEncrypt(plaintext, passphrase []byte) ([]byte, error) {
-	key, salt, _ := security.DeriveKey(passphrase, nil, keyLen)
-	ciphertext, err := security.AESGCMEncrypt(plaintext, key, salt)
-	if err != nil {
-		return nil, err
-	}
-	ciphertext = append(ciphertext, salt...)
-	return ciphertext, nil
-}
-
-func SktMsgDecrypt(ciphertext, passphrase []byte) ([]byte, error) {
-	salt := ciphertext[len(ciphertext)-security.SaltLen:]
-	key, _, _ := security.DeriveKey(passphrase, salt, keyLen)
-	plaintext, err := security.AESGCMDecrypt(ciphertext[:len(ciphertext)-security.SaltLen], key, salt)
-	if err != nil {
-		return nil, err
-	}
-	return plaintext, nil
 }

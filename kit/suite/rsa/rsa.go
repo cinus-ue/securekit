@@ -1,11 +1,10 @@
-package security
+package rsa
 
 import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"strconv"
@@ -87,25 +86,24 @@ func RSADecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 }
 
 // RSA sign
-func RSASign(digest, privateKey []byte) (sig string, err error) {
+func RSASign(digest, privateKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(privateKey)
 	if block == nil {
-		err = errors.New("private key error")
-		return
+		return nil, errors.New("private key error")
 	}
 	prk, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		return
+		return nil, err
 	}
 	signature, err := rsa.SignPSS(rand.Reader, prk, hash, digest, nil)
 	if err != nil {
-		return
+		return nil, err
 	}
-	return base64.StdEncoding.EncodeToString(signature), nil
+	return signature, nil
 }
 
 // RSA verify
-func RSAVerify(signature string, digest, publicKey []byte) (bool, error) {
+func RSAVerify(signature, digest, publicKey []byte) (bool, error) {
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return false, errors.New("public key error")
@@ -114,12 +112,7 @@ func RSAVerify(signature string, digest, publicKey []byte) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	puk := pubInterface.(*rsa.PublicKey)
-	sig, err := base64.StdEncoding.DecodeString(signature)
-	if err != nil {
-		return false, err
-	}
-	err = rsa.VerifyPSS(puk, hash, digest, sig, nil)
+	err = rsa.VerifyPSS(pubInterface.(*rsa.PublicKey), hash, digest, signature, nil)
 	if err != nil {
 		return false, err
 	}

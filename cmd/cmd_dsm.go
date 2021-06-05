@@ -2,13 +2,15 @@ package cmd
 
 import (
 	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"strconv"
 
 	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/kit/key"
 	"github.com/cinus-ue/securekit/kit/path"
-	"github.com/cinus-ue/securekit/kit/security"
+	"github.com/cinus-ue/securekit/kit/suite"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
@@ -160,8 +162,8 @@ func RSASignAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	signature, err := security.RSASign(digest, prk)
-	fmt.Println("[*]Signature:", signature)
+	signature, err := suite.Sign(digest, prk, suite.RSA)
+	fmt.Println("[*]Signature:", base64.StdEncoding.EncodeToString(signature))
 	return nil
 }
 
@@ -174,7 +176,11 @@ func RSAVerifyAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	ret, err := security.RSAVerify(util.GetInput("Please enter the signature:"), digest, puk)
+	signature, err := base64.StdEncoding.DecodeString(util.GetInput("Please enter the signature:"))
+	if err != nil {
+		return err
+	}
+	ret, err := suite.Verify(signature, digest, puk, suite.RSA)
 	if err != nil {
 		return err
 	}
@@ -187,11 +193,11 @@ func RSAKeyAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	privateKey, err := security.GenerateRSAKey(size)
+	privateKey, err := key.GenerateRSAKey(size)
 	if err != nil {
 		return err
 	}
-	err = security.SaveRSAKey(privateKey)
+	err = key.SaveRSAKey(privateKey)
 	if err != nil {
 		return err
 	}

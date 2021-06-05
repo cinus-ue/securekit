@@ -3,6 +3,7 @@ package kit
 import (
 	"encoding/base64"
 	"errors"
+	"github.com/cinus-ue/securekit/kit/suite"
 	"os"
 	"strings"
 
@@ -14,6 +15,7 @@ import (
 const (
 	rnmVersion = "SKTRNMV1"
 	rnmLen     = 30
+	algo       = suite.Aes256Gcm
 )
 
 func Rename(filepath string, passphrase []byte, db *kvdb.DataBase) error {
@@ -21,7 +23,7 @@ func Rename(filepath string, passphrase []byte, db *kvdb.DataBase) error {
 	if strings.HasPrefix(name, rnmVersion) {
 		return nil
 	}
-	ciphertext, err := SktMsgEncrypt([]byte(name), passphrase)
+	ciphertext, err := suite.BlockEnc([]byte(name), passphrase, algo)
 	if err != nil {
 		return err
 	}
@@ -43,7 +45,7 @@ func Recover(filepath string, passphrase []byte, db *kvdb.DataBase) error {
 		if err != nil {
 			return err
 		}
-		plaintext, err := SktMsgDecrypt(ciphertext, passphrase)
+		plaintext, err := suite.BlockDec(ciphertext, passphrase, algo)
 		if err != nil {
 			return err
 		}

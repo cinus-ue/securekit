@@ -1,4 +1,4 @@
-package security
+package key
 
 import (
 	"crypto/aes"

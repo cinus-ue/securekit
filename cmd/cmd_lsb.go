@@ -40,32 +40,32 @@ func LsbEncAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	out, err := os.Create("stego-out.png")
+	dest, err := os.Create("stego-out.png")
 	if err != nil {
 		return err
 	}
 	defer func() {
 		image.Close()
-		out.Close()
+		dest.Close()
 	}()
 	filename := path.Name(msgPath)
 	payload = assemble(payload, []byte(filename))
 	fmt.Println("[*]Encoding and saving the image...")
-	err = img.LSBEncoder(out, image, payload)
+	err = img.LSBEncoder(dest, image, payload)
 	if err != nil {
 		return err
 	}
-	out.Sync()
+	dest.Sync()
 	fmt.Println("[*]Done.")
 	return nil
 }
 
 func LsbDecAction(*cli.Context) error {
-	in, err := os.Open(util.GetInput("Please enter the path of the stego file:"))
+	image, err := os.Open(util.GetInput("Please enter the path of the stego file:"))
 	if err != nil {
 		return err
 	}
-	payload, err := img.LSBDecoder(in)
+	payload, err := img.LSBDecoder(image)
 	fileNameSize := uint64(payload[5])
 	size := payload[6:14]
 	buf := bytes.NewBuffer(size)
@@ -73,17 +73,17 @@ func LsbDecAction(*cli.Context) error {
 	binary.Read(buf, binary.BigEndian, &fileSize)
 	filename := string(payload[14 : 14+fileNameSize])
 	fmt.Println("[*]Extracting:", filename)
-	out, err := os.Create(filename)
+	dest, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		in.Close()
-		out.Close()
+		image.Close()
+		dest.Close()
 	}()
 	msg := payload[14+fileNameSize : 14+fileNameSize+fileSize]
-	out.Write(msg)
-	out.Sync()
+	dest.Write(msg)
+	dest.Sync()
 	fmt.Println("[*]Done.")
 	return nil
 }
