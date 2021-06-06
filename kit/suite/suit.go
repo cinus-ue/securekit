@@ -1,13 +1,15 @@
 package suite
 
 import (
+	"bytes"
+	"crypto/sha256"
 	"errors"
-	"github.com/cinus-ue/securekit/kit/suite/rsa"
-	"io"
-
+	"github.com/cinus-ue/securekit/kit/hash"
 	"github.com/cinus-ue/securekit/kit/key"
 	"github.com/cinus-ue/securekit/kit/suite/aes"
 	"github.com/cinus-ue/securekit/kit/suite/rc4"
+	"github.com/cinus-ue/securekit/kit/suite/rsa"
+	"io"
 )
 
 type Algorithm string
@@ -63,6 +65,11 @@ func StreamEnc(src io.Reader, dest io.Writer, passphrase []byte, algorithm Algor
 		}
 		return aes.AESCTREncrypt(src, dest, k)
 	case RC4:
+		tag := hash.SHA256(passphrase)
+		_, err = dest.Write(tag)
+		if err != nil {
+			return err
+		}
 		return rc4.RC4KeyStream(src, dest, passphrase)
 	default:
 		return algoErr
@@ -80,6 +87,14 @@ func StreamDec(src io.Reader, dest io.Writer, passphrase []byte, algorithm Algor
 		k, _, _ := key.DeriveKey(passphrase, salt, 32)
 		return aes.AESCTRDecrypt(src, dest, k)
 	case RC4:
+		tag := make([]byte, sha256.Size)
+		_, err = src.Read(tag)
+		if err != nil {
+			return err
+		}
+		if !bytes.Equal(hash.SHA256(passphrase), tag) {
+			return errors.New("wrong passphrase")
+		}
 		return rc4.RC4KeyStream(src, dest, passphrase)
 	default:
 		return algoErr

@@ -8,7 +8,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/cinus-ue/securekit/kit"
+	"github.com/cinus-ue/securekit/kit/hash"
 	"github.com/cinus-ue/securekit/util"
 	"github.com/urfave/cli/v2"
 )
@@ -42,32 +42,32 @@ func CksAction(c *cli.Context) error {
 		algo := util.GetInput("select the appropriate number [1-5]:")
 		switch algo {
 		case "1":
-			sum32, err := kit.HashSum(path, md5.New())
+			sum32, err := hash.HashSum(path, md5.New())
 			if err != nil {
 				return err
 			}
 			fmt.Println("[*]Md5-16->", hex.EncodeToString(sum32)[8:24])
 			fmt.Println("[*]Md5-32->", hex.EncodeToString(sum32))
 		case "2":
-			sum1, err := kit.HashSum(path, sha1.New())
+			sum1, err := hash.HashSum(path, sha1.New())
 			if err != nil {
 				return err
 			}
 			fmt.Println("[*]SHA1->", hex.EncodeToString(sum1))
 		case "3":
-			sum256, err := kit.HashSum(path, sha256.New())
+			sum256, err := hash.HashSum(path, sha256.New())
 			if err != nil {
 				return err
 			}
 			fmt.Println("[*]SHA256->", hex.EncodeToString(sum256))
 		case "4":
-			sum384, err := kit.HashSum(path, sha512.New384())
+			sum384, err := hash.HashSum(path, sha512.New384())
 			if err != nil {
 				return err
 			}
 			fmt.Println("[*]SHA384->", hex.EncodeToString(sum384))
 		case "5":
-			sum512, err := kit.HashSum(path, sha512.New())
+			sum512, err := hash.HashSum(path, sha512.New())
 			if err != nil {
 				return err
 			}
@@ -79,13 +79,13 @@ func CksAction(c *cli.Context) error {
 			text = util.GetInput("Please enter a message:")
 		}
 		data := []byte(text)
-		sum32 := kit.Md532(data)
+		sum32 := hash.Md532(data)
 		fmt.Println("[*]Md5-16->", hex.EncodeToString(sum32)[8:24])
 		fmt.Println("[*]Md5-32->", hex.EncodeToString(sum32))
-		fmt.Println("[*]SHA1--->", hex.EncodeToString(kit.SHA1(data)))
-		fmt.Println("[*]SHA256->", hex.EncodeToString(kit.SHA256(data)))
-		fmt.Println("[*]SHA384->", hex.EncodeToString(kit.SHA384(data)))
-		fmt.Println("[*]SHA512->", hex.EncodeToString(kit.SHA512(data)))
+		fmt.Println("[*]SHA1--->", hex.EncodeToString(hash.SHA1(data)))
+		fmt.Println("[*]SHA256->", hex.EncodeToString(hash.SHA256(data)))
+		fmt.Println("[*]SHA384->", hex.EncodeToString(hash.SHA384(data)))
+		fmt.Println("[*]SHA512->", hex.EncodeToString(hash.SHA512(data)))
 	}
 	return nil
 }
