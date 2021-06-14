@@ -57,7 +57,7 @@ func FileEncAction(*cli.Context) error {
 	fmt.Print("Encryption algorithms:\n  1--AES-256-CTR\n  2--RC4\n")
 	algo := util.GetInput("Select encryption algorithm [1-2]:")
 	var del = false
-	if strings.EqualFold(util.GetInput("delete source file(Y/N):"), "Y") {
+	if strings.EqualFold(util.GetInput("Delete source file(Y/N):"), "Y") {
 		del = true
 	}
 	password := util.GetEncPassword()
@@ -80,7 +80,7 @@ func FileDecAction(*cli.Context) error {
 		return err
 	}
 	var del = false
-	if strings.EqualFold(util.GetInput("delete source file(Y/N):"), "Y") {
+	if strings.EqualFold(util.GetInput("Delete source file(Y/N):"), "Y") {
 		del = true
 	}
 	password := util.GetDecPassword()
@@ -117,11 +117,11 @@ func RSAVerifyAction(*cli.Context) error {
 	if err != nil {
 		return err
 	}
-	ret, err := suite.Verify(signature, digest, puk, suite.RSA)
+	verifyResult, err := suite.Verify(signature, digest, puk, suite.RSA)
 	if err != nil {
 		return err
 	}
-	fmt.Println("[*]Signature valid:", ret)
+	fmt.Println("[*]Signature valid:", verifyResult)
 	return nil
 }
 

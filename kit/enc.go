@@ -3,11 +3,11 @@ package kit
 import (
 	"bytes"
 	"errors"
-	"github.com/cinus-ue/securekit/kit/suite"
-	"io"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/cinus-ue/securekit/kit/suite"
 )
 
 const (
@@ -21,42 +21,11 @@ var (
 	sktRc4Header = []byte{0x53, 0x4B, 0x54, 0x02, 0x02}
 )
 
-func fileHeader(src io.Reader) (string, error) {
-	head := make([]byte, 5)
-	_, _ = src.Read(head)
-	if bytes.Equal(head, sktAesHeader) {
-		return SktAes, nil
-	} else if bytes.Equal(head, sktRc4Header) {
-		return SktRc4, nil
-	}
-	return "", errors.New("version mismatch error")
-}
-
-func beforeEncrypt(filepath string) (src, dest *os.File, err error) {
-	src, err = os.Open(filepath)
-	if err != nil {
-		return
-	}
-	dest, err = os.Create(filepath + sktExt)
-	return
-}
-
-func closeFile(src, dest *os.File) {
-	src.Close()
-	dest.Close()
-}
-
-func deleteFile(file *os.File, delete bool) {
-	if delete {
-		os.Remove(file.Name())
-	}
-}
-
 func FileEncrypt(filepath, algorithm string, passphrase []byte, delete bool) error {
 	if path.Ext(filepath) == sktExt {
 		return nil
 	}
-	src, dest, err := beforeEncrypt(filepath)
+	var src, dest, err = openEncFile(filepath)
 	if err != nil {
 		return err
 	}
@@ -77,27 +46,19 @@ func FileEncrypt(filepath, algorithm string, passphrase []byte, delete bool) err
 	return nil
 }
 
-func FileDecrypt(filepath string, key []byte, delete bool) error {
+func FileDecrypt(filepath string, passphrase []byte, delete bool) error {
 	if path.Ext(filepath) != sktExt {
 		return nil
 	}
-	src, err := os.Open(filepath)
+	var src, dest, algorithm, err = openDecFile(filepath)
 	if err != nil {
 		return err
 	}
-	header, err := fileHeader(src)
-	if err != nil {
-		return err
-	}
-	dest, err := os.Create(strings.TrimSuffix(filepath, sktExt))
-	if err != nil {
-		return err
-	}
-	switch header {
+	switch algorithm {
 	case SktAes:
-		err = suite.StreamDec(src, dest, key, suite.Aes256Ctr)
+		err = suite.StreamDec(src, dest, passphrase, suite.Aes256Ctr)
 	case SktRc4:
-		err = suite.StreamDec(src, dest, key, suite.RC4)
+		err = suite.StreamDec(src, dest, passphrase, suite.RC4)
 	}
 	closeFile(src, dest)
 	if err != nil {
@@ -106,4 +67,43 @@ func FileDecrypt(filepath string, key []byte, delete bool) error {
 	}
 	deleteFile(src, delete)
 	return nil
+}
+
+func openEncFile(filepath string) (src, dest *os.File, err error) {
+	src, err = os.Open(filepath)
+	if err != nil {
+		return
+	}
+	dest, err = os.Create(filepath + sktExt)
+	return
+}
+
+func openDecFile(filepath string) (src, dest *os.File, algorithm string, err error) {
+	src, err = os.Open(filepath)
+	if err != nil {
+		return
+	}
+	header := make([]byte, 5)
+	_, _ = src.Read(header)
+	if bytes.Equal(header, sktAesHeader) {
+		algorithm = SktAes
+	} else if bytes.Equal(header, sktRc4Header) {
+		algorithm = SktRc4
+	} else {
+		err = errors.New("version mismatch error")
+		return
+	}
+	dest, err = os.Create(strings.TrimSuffix(filepath, sktExt))
+	return
+}
+
+func closeFile(src, dest *os.File) {
+	src.Close()
+	dest.Close()
+}
+
+func deleteFile(file *os.File, delete bool) {
+	if delete {
+		os.Remove(file.Name())
+	}
 }
