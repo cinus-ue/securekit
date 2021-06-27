@@ -25,7 +25,7 @@ var (
 	algoErr = errors.New("unsupported algorithm")
 )
 
-func BlockEnc(plaintext, passphrase []byte, algorithm Algorithm) ([]byte, error) {
+func BlockEncrypt(plaintext, passphrase []byte, algorithm Algorithm) ([]byte, error) {
 	switch algorithm {
 	case Aes256Gcm:
 		k, salt, _ := key.DeriveKey(passphrase, nil, 32)
@@ -40,7 +40,7 @@ func BlockEnc(plaintext, passphrase []byte, algorithm Algorithm) ([]byte, error)
 	}
 }
 
-func BlockDec(ciphertext, passphrase []byte, algorithm Algorithm) ([]byte, error) {
+func BlockDecrypt(ciphertext, passphrase []byte, algorithm Algorithm) ([]byte, error) {
 	switch algorithm {
 	case Aes256Gcm:
 		salt := ciphertext[len(ciphertext)-key.SaltLen:]
@@ -55,7 +55,7 @@ func BlockDec(ciphertext, passphrase []byte, algorithm Algorithm) ([]byte, error
 	}
 }
 
-func StreamEnc(src io.Reader, dest io.Writer, passphrase []byte, algorithm Algorithm) (err error) {
+func StreamEncrypt(src io.Reader, dest io.Writer, passphrase []byte, algorithm Algorithm) (err error) {
 	switch algorithm {
 	case Aes256Ctr:
 		k, salt, _ := key.DeriveKey(passphrase, nil, 32)
@@ -76,7 +76,7 @@ func StreamEnc(src io.Reader, dest io.Writer, passphrase []byte, algorithm Algor
 	}
 }
 
-func StreamDec(src io.Reader, dest io.Writer, passphrase []byte, algorithm Algorithm) (err error) {
+func StreamDecrypt(src io.Reader, dest io.Writer, passphrase []byte, algorithm Algorithm) (err error) {
 	switch algorithm {
 	case Aes256Ctr:
 		salt := make([]byte, key.SaltLen)

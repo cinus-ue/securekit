@@ -32,10 +32,10 @@ func FileEncrypt(filepath, algorithm string, passphrase []byte, delete bool) err
 	switch algorithm {
 	case SktAes:
 		dest.Write(sktAesHeader)
-		err = suite.StreamEnc(src, dest, passphrase, suite.Aes256Ctr)
+		err = suite.StreamEncrypt(src, dest, passphrase, suite.Aes256Ctr)
 	case SktRc4:
 		dest.Write(sktRc4Header)
-		err = suite.StreamEnc(src, dest, passphrase, suite.RC4)
+		err = suite.StreamEncrypt(src, dest, passphrase, suite.RC4)
 	}
 	closeFile(src, dest)
 	if err != nil {
@@ -56,9 +56,9 @@ func FileDecrypt(filepath string, passphrase []byte, delete bool) error {
 	}
 	switch algorithm {
 	case SktAes:
-		err = suite.StreamDec(src, dest, passphrase, suite.Aes256Ctr)
+		err = suite.StreamDecrypt(src, dest, passphrase, suite.Aes256Ctr)
 	case SktRc4:
-		err = suite.StreamDec(src, dest, passphrase, suite.RC4)
+		err = suite.StreamDecrypt(src, dest, passphrase, suite.RC4)
 	}
 	closeFile(src, dest)
 	if err != nil {

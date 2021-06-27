@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"container/list"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -76,6 +77,26 @@ func GetInput(s string) string {
 	}
 }
 
+func ReadInput(s string) []byte {
+	fmt.Println(s)
+	var input []byte
+	f := bufio.NewReader(os.Stdin)
+	for {
+		read, err := f.ReadByte()
+		if err == io.EOF {
+			return input
+		}
+		input = append(input, read)
+	}
+}
+
+func ReadPassword() []byte {
+	fmt.Print("Enter password:")
+	password, _ := terminal.ReadPassword(int(syscall.Stdin))
+	fmt.Print("\n")
+	return password
+}
+
 func ConvertByte2String(byte []byte, charset Charset) string {
 	var str string
 	switch charset {
@@ -141,6 +162,7 @@ func ArgumentMissing() {
 
 func CheckErr(err error) {
 	if err != nil {
-		panic(err)
+		fmt.Println("Error:", err.Error())
+		os.Exit(1)
 	}
 }

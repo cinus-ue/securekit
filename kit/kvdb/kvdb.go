@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"errors"
+	"github.com/cinus-ue/securekit/kit/path"
 	"io"
 	"os"
 	"regexp"
@@ -11,15 +12,26 @@ import (
 )
 
 const (
-	DefaultDB = "skt.db"
 	Memory    = "memory"
 	Disk      = "disk"
+	defaultDB = "skt.db"
 )
 
 type DataBase struct {
 	mode string
 	sync.RWMutex
 	m map[string]string
+}
+
+func dbName() string {
+	if path.ValidateFile(defaultDB) {
+		return defaultDB
+	}
+	env := os.Getenv("SKT_DB")
+	if len(env) == 0 {
+		return defaultDB
+	}
+	return env + path.Separator + defaultDB
 }
 
 func newDB(mode string) *DataBase {
@@ -36,7 +48,7 @@ func InitDB(mode string) (*DataBase, error) {
 	case Memory:
 		return db, nil
 	case Disk:
-		if _, err := os.Stat(DefaultDB); os.IsNotExist(err) {
+		if _, err := os.Stat(dbName()); os.IsNotExist(err) {
 			err := db.Save()
 			if err != nil {
 				return nil, err
@@ -53,7 +65,7 @@ func InitDB(mode string) (*DataBase, error) {
 }
 
 func (db *DataBase) Load() error {
-	f, err := os.Open(DefaultDB)
+	f, err := os.Open(dbName())
 	if err != nil {
 		return err
 	}
@@ -66,7 +78,7 @@ func (db *DataBase) Load() error {
 }
 
 func (db *DataBase) Save() error {
-	f, err := os.Create(DefaultDB)
+	f, err := os.Create(dbName())
 	if err != nil {
 		return err
 	}

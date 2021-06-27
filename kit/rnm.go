@@ -23,7 +23,7 @@ func Rename(filepath string, passphrase []byte, db *kvdb.DataBase) error {
 	if strings.HasPrefix(name, rnmVersion) {
 		return nil
 	}
-	ciphertext, err := suite.BlockEnc([]byte(name), passphrase, algo)
+	ciphertext, err := suite.BlockEncrypt([]byte(name), passphrase, algo)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func Recover(filepath string, passphrase []byte, db *kvdb.DataBase) error {
 		if err != nil {
 			return err
 		}
-		plaintext, err := suite.BlockDec(ciphertext, passphrase, algo)
+		plaintext, err := suite.BlockDecrypt(ciphertext, passphrase, algo)
 		if err != nil {
 			return err
 		}
